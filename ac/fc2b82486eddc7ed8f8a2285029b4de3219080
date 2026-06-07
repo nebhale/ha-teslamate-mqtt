@@ -1,0 +1,21 @@
+tests/test_entity.py
+  s_5357efc1ce7e2a::t_9805307b47943f 130,315-318,944-946,1229-1246
+custom_components/teslamate_mqtt/binary_sensor.py
+  s_5357efc1ce7e2a::t_c51d8838c5b38d 14,47,101-116
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "acfc2b82486eddc7ed8f8a2285029b4de3219080",
+  "prompts": {},
+  "sessions": {
+    "s_5357efc1ce7e2a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ea3b7-6344-7542-b7f5-a876a685397d",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Ben Hale <nebhale@nebhale.com>"
+    }
+  }
+}
