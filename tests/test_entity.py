@@ -314,6 +314,10 @@ async def test_entities(
 
     charging_binary_state = hass.states.get("binary_sensor.roadrunner_charging")
     assert charging_binary_state.state == STATE_OFF
+    assert (
+        charging_binary_state.attributes[ATTR_DEVICE_CLASS]
+        == BinarySensorDeviceClass.BATTERY_CHARGING
+    )
     assert charging_binary_state.attributes[ATTR_ICON] == "mdi:battery-charging"
 
     assert hass.states.get("binary_sensor.roadrunner_doors").state == STATE_ON

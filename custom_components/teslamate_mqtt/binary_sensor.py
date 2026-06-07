@@ -101,6 +101,7 @@ class TeslaMateChargePortDoorOpenBinarySensor(TeslaMateMqttEntity, BinarySensorE
 class TeslaMateChargingBinarySensor(TeslaMateMqttEntity, BinarySensorEntity):
     """Representation of whether the Tesla is charging."""
 
+    _attr_device_class = BinarySensorDeviceClass.BATTERY_CHARGING
     _attr_icon = "mdi:battery-charging"
     _attr_name = "Charging"
 
