@@ -127,6 +127,7 @@ async def test_entities(
     assert hass.states.get("binary_sensor.roadrunner_charge_port").state == (
         STATE_UNKNOWN
     )
+    assert hass.states.get("binary_sensor.roadrunner_charging").state == STATE_UNKNOWN
     assert hass.states.get("binary_sensor.roadrunner_doors").state == STATE_UNKNOWN
     assert hass.states.get("binary_sensor.roadrunner_door_driver_front").state == (
         STATE_UNKNOWN
@@ -310,6 +311,10 @@ async def test_entities(
         charge_port_state.attributes[ATTR_DEVICE_CLASS] == BinarySensorDeviceClass.DOOR
     )
     assert charge_port_state.attributes[ATTR_ICON] == "mdi:ev-plug-tesla"
+
+    charging_binary_state = hass.states.get("binary_sensor.roadrunner_charging")
+    assert charging_binary_state.state == STATE_OFF
+    assert charging_binary_state.attributes[ATTR_ICON] == "mdi:battery-charging"
 
     assert hass.states.get("binary_sensor.roadrunner_doors").state == STATE_ON
     assert (
@@ -936,6 +941,9 @@ async def test_entities(
         entity_registry.async_get("binary_sensor.roadrunner_charge_port").unique_id
         == "teslamate/cars/1/charge_port_door_open"
     )
+    assert entity_registry.async_get("binary_sensor.roadrunner_charging").unique_id == (
+        "teslamate/cars/1/charging_state"
+    )
     assert entity_registry.async_get("binary_sensor.roadrunner_doors").unique_id == (
         "teslamate/cars/1/doors_open"
     )
@@ -1216,6 +1224,26 @@ async def test_charging_state_values(
     await hass.async_block_till_done()
 
     assert hass.states.get("sensor.roadrunner_charging_state").state == state
+
+
+@pytest.mark.parametrize(
+    ("payload", "state"),
+    [
+        pytest.param("Charging", STATE_ON, id="charging"),
+        pytest.param("NoPower", STATE_OFF, id="not_charging"),
+        pytest.param("charging", STATE_OFF, id="case_sensitive"),
+    ],
+)
+async def test_charging_binary_sensor_values(
+    hass: HomeAssistant, mqtt_mock: MqttMockHAClient, payload: str, state: str
+) -> None:
+    """Test charging binary sensor value mapping."""
+    await _async_setup_entry(hass)
+
+    async_fire_mqtt_message(hass, "teslamate/cars/1/charging_state", payload)
+    await hass.async_block_till_done()
+
+    assert hass.states.get("binary_sensor.roadrunner_charging").state == state
 
 
 @pytest.mark.parametrize(

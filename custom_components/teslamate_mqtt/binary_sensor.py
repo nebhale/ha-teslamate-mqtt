@@ -11,6 +11,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from . import TeslaMateMqttConfigEntry
 from .const import (
     TOPIC_CHARGE_PORT_DOOR_OPEN,
+    TOPIC_CHARGING_STATE,
     TOPIC_DOORS_OPEN,
     TOPIC_DRIVER_FRONT_DOOR_OPEN,
     TOPIC_DRIVER_REAR_DOOR_OPEN,
@@ -43,6 +44,7 @@ async def async_setup_entry(
     async_add_entities(
         [
             TeslaMateChargePortDoorOpenBinarySensor(entry.runtime_data),
+            TeslaMateChargingBinarySensor(entry.runtime_data),
             TeslaMateDoorsOpenBinarySensor(entry.runtime_data),
             TeslaMateDriverFrontDoorOpenBinarySensor(entry.runtime_data),
             TeslaMateDriverRearDoorOpenBinarySensor(entry.runtime_data),
@@ -94,6 +96,24 @@ class TeslaMateChargePortDoorOpenBinarySensor(TeslaMateMqttEntity, BinarySensorE
         if (value := self.data.value(TOPIC_CHARGE_PORT_DOOR_OPEN)) is None:
             return None
         return value.lower() == "true"
+
+
+class TeslaMateChargingBinarySensor(TeslaMateMqttEntity, BinarySensorEntity):
+    """Representation of whether the Tesla is charging."""
+
+    _attr_icon = "mdi:battery-charging"
+    _attr_name = "Charging"
+
+    def __init__(self, data) -> None:
+        """Initialize the binary sensor."""
+        super().__init__(data, TOPIC_CHARGING_STATE)
+
+    @property
+    def is_on(self) -> bool | None:
+        """Return true if the Tesla is charging."""
+        if (value := self.data.value(TOPIC_CHARGING_STATE)) is None:
+            return None
+        return value == "Charging"
 
 
 class TeslaMateDoorOpenBinarySensor(TeslaMateBooleanBinarySensor):
