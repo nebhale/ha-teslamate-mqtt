@@ -1,0 +1,33 @@
+pyproject.toml
+  s_925bf455007885::t_df9752c87adcc1 1-20
+LICENSE
+  s_925bf455007885::t_df9752c87adcc1 1-201
+custom_components/teslamate_mqtt/manifest.json
+  s_a5b1b5803a2e7a::t_02df8a74840b99 8-12
+.github/workflows/validate.yml
+  s_a5b1b5803a2e7a::t_fc0512a438daa2 7-40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "47a84c26a7572bd67ddf75df6cbd9ece6f0bfd5d",
+  "prompts": {},
+  "sessions": {
+    "s_925bf455007885": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ea343-83df-7672-958b-4ef0db2625ac",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Ben Hale <nebhale@nebhale.com>"
+    },
+    "s_a5b1b5803a2e7a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ea350-0636-7461-8e7b-ffaf0802a3fd",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Ben Hale <nebhale@nebhale.com>"
+    }
+  }
+}
