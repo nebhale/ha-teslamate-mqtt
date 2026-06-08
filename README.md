@@ -30,14 +30,17 @@ custom_components/teslamate_mqtt/
 
 ### Linting
 
-This repository vendors Home Assistant Core's Ruff configuration in
+This repository vendors Home Assistant Core's Ruff and Pylint configuration in
 `pyproject.toml`, with first-party import paths adjusted for the standalone
-custom integration layout. Run Ruff directly, matching the GitHub Actions
-validation workflow:
+custom integration layout. Install lint dependencies with the `lint` extra,
+then run Ruff and Pylint directly. The GitHub Validate workflow runs the
+same checks on pushes and pull requests:
 
 ```bash
+python -m pip install -e .[lint]
 ruff check .
 ruff format --check .
+pylint custom_components tests
 ```
 
 ## Status

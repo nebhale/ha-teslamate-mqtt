@@ -32,13 +32,16 @@ jobs:
           cache: pip
 
       - name: Install validation tools
-        run: python -m pip install --upgrade ruff
+        run: python -m pip install --upgrade ruff ".[lint]"
 
       - name: Lint
         run: ruff check .
 
       - name: Format
         run: ruff format --check .
+
+      - name: Pylint
+        run: pylint custom_components tests
 
   test:
     name: Test
