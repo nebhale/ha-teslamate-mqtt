@@ -2,12 +2,12 @@
 
 from unittest.mock import patch
 
-from custom_components.teslamate_mqtt.const import CONF_TOPIC_ROOT, DOMAIN
 from homeassistant.config_entries import SOURCE_MQTT, SOURCE_USER
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers.service_info.mqtt import MqttServiceInfo
 
+from custom_components.teslamate_mqtt.const import CONF_TOPIC_ROOT, DOMAIN
 from tests.common import MockConfigEntry
 from tests.typing import MqttMockHAClient
 

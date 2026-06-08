@@ -6,8 +6,6 @@ import logging
 from typing import Any
 from unittest.mock import patch
 
-import pytest
-
 from homeassistant.components import mqtt
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.sensor import (
@@ -15,7 +13,6 @@ from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorStateClass,
 )
-from custom_components.teslamate_mqtt.const import CONF_TOPIC_ROOT, DOMAIN
 from homeassistant.components.update import UpdateDeviceClass
 from homeassistant.components.update.const import (
     ATTR_INSTALLED_VERSION,
@@ -46,7 +43,9 @@ from homeassistant.const import (
 )
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
 from homeassistant.helpers import device_registry as dr, entity_registry as er
+import pytest
 
+from custom_components.teslamate_mqtt.const import CONF_TOPIC_ROOT, DOMAIN
 from tests.common import MockConfigEntry, async_fire_mqtt_message
 from tests.typing import MqttMockHAClient
 
