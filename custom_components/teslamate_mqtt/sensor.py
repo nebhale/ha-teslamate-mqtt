@@ -26,7 +26,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.util import dt as dt_util
 
-from . import TeslaMateMqttConfigEntry
+from . import TeslaMateMqttConfigEntry, TeslaMateMqttData
 from .const import (
     TOPIC_BATTERY_LEVEL,
     TOPIC_CENTER_DISPLAY_STATE,
@@ -141,7 +141,7 @@ class TeslaMateBatteryLevelSensor(TeslaMateMqttEntity, SensorEntity):
     _attr_native_unit_of_measurement = PERCENTAGE
     _attr_state_class = SensorStateClass.MEASUREMENT
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_BATTERY_LEVEL)
 
@@ -164,7 +164,7 @@ class TeslaMateUsableBatteryLevelSensor(TeslaMateMqttEntity, SensorEntity):
     _attr_native_unit_of_measurement = PERCENTAGE
     _attr_state_class = SensorStateClass.MEASUREMENT
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_USABLE_BATTERY_LEVEL)
 
@@ -243,7 +243,7 @@ class TeslaMatePowerSensor(TeslaMateIntegerMeasurementSensor):
     _attr_name = "Power"
     _attr_native_unit_of_measurement = UnitOfPower.KILO_WATT
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_POWER)
 
@@ -262,7 +262,7 @@ class TeslaMateChargeCurrentRequestSensor(TeslaMateCurrentSensor):
 
     _attr_name = "Charge Current Request"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_CHARGE_CURRENT_REQUEST)
 
@@ -272,7 +272,7 @@ class TeslaMateChargeCurrentRequestMaxSensor(TeslaMateCurrentSensor):
 
     _attr_name = "Charge Current Request (Max)"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_CHARGE_CURRENT_REQUEST_MAX)
 
@@ -282,7 +282,7 @@ class TeslaMateChargerActualCurrentSensor(TeslaMateCurrentSensor):
 
     _attr_name = "Charger Current"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_CHARGER_ACTUAL_CURRENT)
 
@@ -294,7 +294,7 @@ class TeslaMateChargerPhasesSensor(TeslaMateIntegerMeasurementSensor):
     _attr_name = "Charger Phases"
     _attr_native_unit_of_measurement = "phases"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_CHARGER_PHASES)
 
@@ -306,7 +306,7 @@ class TeslaMateChargerPowerSensor(TeslaMateIntegerMeasurementSensor):
     _attr_name = "Charger Power"
     _attr_native_unit_of_measurement = UnitOfPower.KILO_WATT
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_CHARGER_POWER)
 
@@ -318,7 +318,7 @@ class TeslaMateChargerVoltageSensor(TeslaMateIntegerMeasurementSensor):
     _attr_name = "Charger Voltage"
     _attr_native_unit_of_measurement = UnitOfElectricPotential.VOLT
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_CHARGER_VOLTAGE)
 
@@ -329,7 +329,7 @@ class TeslaMateChargingStateSensor(TeslaMateMqttEntity, SensorEntity):
     _attr_icon = "mdi:ev-station"
     _attr_name = "Charging State"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_CHARGING_STATE)
 
@@ -347,7 +347,7 @@ class TeslaMateClimateKeeperModeSensor(TeslaMateMqttEntity, SensorEntity):
     _attr_icon = "mdi:air-conditioner"
     _attr_name = "Climate Keeper"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_CLIMATE_KEEPER_MODE)
 
@@ -365,7 +365,7 @@ class TeslaMateExteriorColorSensor(TeslaMateMqttEntity, SensorEntity):
     _attr_icon = "mdi:format-color-fill"
     _attr_name = "Exterior Color"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_EXTERIOR_COLOR)
 
@@ -383,7 +383,7 @@ class TeslaMateGeofenceSensor(TeslaMateMqttEntity, SensorEntity):
     _attr_icon = "mdi:earth"
     _attr_name = "Geofence"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_GEOFENCE)
 
@@ -401,7 +401,7 @@ class TeslaMateHeadingSensor(TeslaMateIntegerMeasurementSensor):
     _attr_native_unit_of_measurement = DEGREE
     _attr_suggested_display_precision = 0
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_HEADING)
 
@@ -414,7 +414,7 @@ class TeslaMateElevationSensor(TeslaMateDistanceSensor):
     _attr_native_unit_of_measurement = UnitOfLength.METERS
     _attr_suggested_display_precision = 0
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_ELEVATION)
 
@@ -432,7 +432,7 @@ class TeslaMateEstimatedBatteryRangeSensor(TeslaMateBatteryRangeSensor):
 
     _attr_name = "Range (Estimated)"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_EST_BATTERY_RANGE_KM)
 
@@ -442,7 +442,7 @@ class TeslaMateIdealBatteryRangeSensor(TeslaMateBatteryRangeSensor):
 
     _attr_name = "Range (Ideal)"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_IDEAL_BATTERY_RANGE_KM)
 
@@ -456,7 +456,7 @@ class TeslaMateOdometerSensor(TeslaMateDistanceSensor):
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_suggested_display_precision = 0
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_ODOMETER)
 
@@ -466,7 +466,7 @@ class TeslaMateInsideTemperatureSensor(TeslaMateTemperatureSensor):
 
     _attr_name = "Temperature (Inside)"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_INSIDE_TEMP)
 
@@ -476,7 +476,7 @@ class TeslaMateOutsideTemperatureSensor(TeslaMateTemperatureSensor):
 
     _attr_name = "Temperature (Outside)"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_OUTSIDE_TEMP)
 
@@ -486,7 +486,7 @@ class TeslaMateRatedBatteryRangeSensor(TeslaMateBatteryRangeSensor):
 
     _attr_name = "Range (Rated)"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_RATED_BATTERY_RANGE_KM)
 
@@ -497,7 +497,7 @@ class TeslaMateScheduledChargingStartTimeSensor(TeslaMateMqttEntity, SensorEntit
     _attr_device_class = SensorDeviceClass.TIMESTAMP
     _attr_name = "Charging Start Time"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_SCHEDULED_CHARGING_START_TIME)
 
@@ -515,7 +515,7 @@ class TeslaMateShiftStateSensor(TeslaMateMqttEntity, SensorEntity):
     _attr_icon = "mdi:car-shift-pattern"
     _attr_name = "Shift State"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_SHIFT_STATE)
 
@@ -532,7 +532,7 @@ class TeslaMateSinceSensor(TeslaMateMqttEntity, SensorEntity):
     _attr_icon = "mdi:timer-sand"
     _attr_name = "Last Seen"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_SINCE)
 
@@ -554,7 +554,7 @@ class TeslaMateSpeedSensor(TeslaMateFloatSensor):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_suggested_display_precision = 0
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_SPEED)
 
@@ -565,7 +565,7 @@ class TeslaMateStateSensor(TeslaMateMqttEntity, SensorEntity):
     _attr_icon = "mdi:car-connected"
     _attr_name = "State"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_STATE)
 
@@ -586,7 +586,7 @@ class TeslaMateTimeToFullChargeSensor(TeslaMateFloatSensor):
     _attr_native_unit_of_measurement = UnitOfTime.HOURS
     _attr_state_class = SensorStateClass.MEASUREMENT
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_TIME_TO_FULL_CHARGE)
 
@@ -606,7 +606,7 @@ class TeslaMateTirePressureFrontLeftSensor(TeslaMateTirePressureSensor):
 
     _attr_name = "Tire Pressure (Front Left)"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_TPMS_PRESSURE_FL)
 
@@ -616,7 +616,7 @@ class TeslaMateTirePressureFrontRightSensor(TeslaMateTirePressureSensor):
 
     _attr_name = "Tire Pressure (Front Right)"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_TPMS_PRESSURE_FR)
 
@@ -626,7 +626,7 @@ class TeslaMateTirePressureRearLeftSensor(TeslaMateTirePressureSensor):
 
     _attr_name = "Tire Pressure (Rear Left)"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_TPMS_PRESSURE_RL)
 
@@ -636,7 +636,7 @@ class TeslaMateTirePressureRearRightSensor(TeslaMateTirePressureSensor):
 
     _attr_name = "Tire Pressure (Rear Right)"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_TPMS_PRESSURE_RR)
 
@@ -650,7 +650,7 @@ class TeslaMateChargeEnergyAddedSensor(TeslaMateMqttEntity, SensorEntity):
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
     _attr_suggested_display_precision = 1
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_CHARGE_ENERGY_ADDED)
 
@@ -674,7 +674,7 @@ class TeslaMateChargeLimitSocSensor(TeslaMateMqttEntity, SensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_suggested_display_precision = 0
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_CHARGE_LIMIT_SOC)
 
@@ -695,7 +695,7 @@ class TeslaMateCenterDisplayStateSensor(TeslaMateMqttEntity, SensorEntity):
     _attr_icon = "mdi:television"
     _attr_name = "Center Display"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the sensor."""
         super().__init__(data, TOPIC_CENTER_DISPLAY_STATE)
 

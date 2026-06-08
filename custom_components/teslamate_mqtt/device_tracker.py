@@ -4,7 +4,7 @@ from homeassistant.components.device_tracker import SourceType, TrackerEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from . import TeslaMateMqttConfigEntry
+from . import TeslaMateMqttConfigEntry, TeslaMateMqttData
 from .const import TOPIC_LATITUDE, TOPIC_LONGITUDE
 from .entity import TeslaMateMqttEntity
 
@@ -25,7 +25,7 @@ class TeslaMateDeviceTracker(TeslaMateMqttEntity, TrackerEntity):
     _attr_icon = "mdi:crosshairs-gps"
     _attr_name = None
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the device tracker."""
         super().__init__(data, "location")
 
