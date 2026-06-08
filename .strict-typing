@@ -1,7 +1,0 @@
-# Used by hassfest for generating mypy.ini.
-#
-# If a module is fully covered with type annotations, add it here to enable
-# strict mypy checks when vendoring Home Assistant's hassfest configuration.
-#
-# Strict typing is enabled by default for core Home Assistant files.
-# Add custom integration modules below this line when they are ready.

@@ -41,7 +41,7 @@ from homeassistant.const import (
     UnitOfTemperature,
     UnitOfTime,
 )
-from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
+from homeassistant.core import CALLBACK_TYPE, HomeAssistant
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 import pytest
 from pytest_homeassistant_custom_component.common import (
@@ -53,7 +53,6 @@ from custom_components.teslamate_mqtt.const import CONF_TOPIC_ROOT, DOMAIN
 from tests.typing import MqttMockHAClient
 
 
-@callback
 def _async_on_subscribe_done(
     hass: HomeAssistant,
     topic: str,
