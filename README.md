@@ -28,6 +28,18 @@ custom_components/teslamate_mqtt/
   manifest.json
 ```
 
+### Linting
+
+This repository vendors Home Assistant Core's Ruff configuration in
+`pyproject.toml`, with first-party import paths adjusted for the standalone
+custom integration layout. Run Ruff directly, matching the GitHub Actions
+validation workflow:
+
+```bash
+ruff check .
+ruff format --check .
+```
+
 ## Status
 
 This project is currently scaffolded and ready for implementation.
