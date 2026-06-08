@@ -1,18 +1,18 @@
 """Tests for the TeslaMate MQTT config flow."""
 
+from typing import Any
 from unittest.mock import patch
 
 from homeassistant.config_entries import SOURCE_MQTT, SOURCE_USER
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers.service_info.mqtt import MqttServiceInfo
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.teslamate_mqtt.const import CONF_TOPIC_ROOT, DOMAIN
-from tests.common import MockConfigEntry
-from tests.typing import MqttMockHAClient
 
 
-async def test_mqtt_discovery(hass: HomeAssistant, mqtt_mock: MqttMockHAClient) -> None:
+async def test_mqtt_discovery(hass: HomeAssistant, mqtt_mock: Any) -> None:
     """Test MQTT discovery creates a config entry."""
     discovery_info = MqttServiceInfo(
         topic="teslamate/cars/1/display_name",
@@ -34,7 +34,7 @@ async def test_mqtt_discovery(hass: HomeAssistant, mqtt_mock: MqttMockHAClient) 
 
 
 async def test_mqtt_discovery_namespaced_topic(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient
+    hass: HomeAssistant, mqtt_mock: Any
 ) -> None:
     """Test MQTT discovery creates a config entry for a namespaced root."""
     discovery_info = MqttServiceInfo(
@@ -56,7 +56,7 @@ async def test_mqtt_discovery_namespaced_topic(
 
 
 async def test_mqtt_discovery_updates_existing_title(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient
+    hass: HomeAssistant, mqtt_mock: Any
 ) -> None:
     """Test MQTT discovery updates the title for an existing config entry."""
     entry = MockConfigEntry(
@@ -85,7 +85,7 @@ async def test_mqtt_discovery_updates_existing_title(
 
 
 async def test_mqtt_discovery_invalid_topic(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient
+    hass: HomeAssistant, mqtt_mock: Any
 ) -> None:
     """Test MQTT discovery aborts for invalid discovery data."""
     discovery_info = MqttServiceInfo(
@@ -105,7 +105,7 @@ async def test_mqtt_discovery_invalid_topic(
     assert result["reason"] == "invalid_discovery_info"
 
 
-async def test_user_flow(hass: HomeAssistant, mqtt_mock: MqttMockHAClient) -> None:
+async def test_user_flow(hass: HomeAssistant, mqtt_mock: Any) -> None:
     """Test manual configuration validates the display name topic."""
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": SOURCE_USER}
@@ -127,9 +127,7 @@ async def test_user_flow(hass: HomeAssistant, mqtt_mock: MqttMockHAClient) -> No
     assert result["result"].unique_id == "teslamate/cars/1"
 
 
-async def test_user_flow_no_display_name(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient
-) -> None:
+async def test_user_flow_no_display_name(hass: HomeAssistant, mqtt_mock: Any) -> None:
     """Test manual configuration fails when display name is not retained."""
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": SOURCE_USER}
@@ -148,7 +146,7 @@ async def test_user_flow_no_display_name(
 
 
 async def test_user_flow_invalid_topic_root(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient
+    hass: HomeAssistant, mqtt_mock: Any
 ) -> None:
     """Test manual configuration rejects invalid topic roots."""
     result = await hass.config_entries.flow.async_init(

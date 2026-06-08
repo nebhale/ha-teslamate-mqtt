@@ -44,10 +44,12 @@ from homeassistant.const import (
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 import pytest
+from pytest_homeassistant_custom_component.common import (
+    MockConfigEntry,
+    async_fire_mqtt_message,
+)
 
 from custom_components.teslamate_mqtt.const import CONF_TOPIC_ROOT, DOMAIN
-from tests.common import MockConfigEntry, async_fire_mqtt_message
-from tests.typing import MqttMockHAClient
 
 
 @callback
@@ -116,7 +118,7 @@ async def _async_setup_entry(
 
 async def test_entities(
     hass: HomeAssistant,
-    mqtt_mock: MqttMockHAClient,
+    mqtt_mock: Any,
     entity_registry: er.EntityRegistry,
     device_registry: dr.DeviceRegistry,
 ) -> None:
@@ -1218,7 +1220,7 @@ async def test_entities(
     ],
 )
 async def test_charging_state_values(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient, payload: str, state: str
+    hass: HomeAssistant, mqtt_mock: Any, payload: str, state: str
 ) -> None:
     """Test charging state value formatting."""
     await _async_setup_entry(hass)
@@ -1238,7 +1240,7 @@ async def test_charging_state_values(
     ],
 )
 async def test_charging_binary_sensor_values(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient, payload: str, state: str
+    hass: HomeAssistant, mqtt_mock: Any, payload: str, state: str
 ) -> None:
     """Test charging binary sensor value mapping."""
     await _async_setup_entry(hass)
@@ -1257,7 +1259,7 @@ async def test_charging_binary_sensor_values(
     ],
 )
 async def test_climate_keeper_mode_values(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient, payload: str, state: str
+    hass: HomeAssistant, mqtt_mock: Any, payload: str, state: str
 ) -> None:
     """Test climate keeper mode value formatting."""
     await _async_setup_entry(hass)
@@ -1277,7 +1279,7 @@ async def test_climate_keeper_mode_values(
     ],
 )
 async def test_state_values(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient, payload: str, state: str
+    hass: HomeAssistant, mqtt_mock: Any, payload: str, state: str
 ) -> None:
     """Test vehicle state value formatting."""
     await _async_setup_entry(hass)
@@ -1308,7 +1310,7 @@ async def test_state_values(
 )
 async def test_model_name_details(
     hass: HomeAssistant,
-    mqtt_mock: MqttMockHAClient,
+    mqtt_mock: Any,
     device_registry: dr.DeviceRegistry,
     wheel_type: str,
     spoiler_type: str,
@@ -1338,7 +1340,7 @@ async def test_model_name_details(
     ],
 )
 async def test_health_values(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient, payload: str, state: str
+    hass: HomeAssistant, mqtt_mock: Any, payload: str, state: str
 ) -> None:
     """Test health value mapping."""
     await _async_setup_entry(hass)
@@ -1357,7 +1359,7 @@ async def test_health_values(
     ],
 )
 async def test_locked_values(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient, payload: str, state: str
+    hass: HomeAssistant, mqtt_mock: Any, payload: str, state: str
 ) -> None:
     """Test locked value mapping."""
     await _async_setup_entry(hass)
@@ -1383,7 +1385,7 @@ async def test_locked_values(
     ],
 )
 async def test_center_display_state_values(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient, payload: str, state: str
+    hass: HomeAssistant, mqtt_mock: Any, payload: str, state: str
 ) -> None:
     """Test center display state value mapping."""
     await _async_setup_entry(hass)
@@ -1397,7 +1399,7 @@ async def test_center_display_state_values(
 
 
 async def test_center_display_state_undocumented_value(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient, caplog: pytest.LogCaptureFixture
+    hass: HomeAssistant, mqtt_mock: Any, caplog: pytest.LogCaptureFixture
 ) -> None:
     """Test undocumented center display state value."""
     await _async_setup_entry(hass)
@@ -1421,7 +1423,7 @@ async def test_center_display_state_undocumented_value(
 )
 async def test_center_display_state_unexpected_value(
     hass: HomeAssistant,
-    mqtt_mock: MqttMockHAClient,
+    mqtt_mock: Any,
     caplog: pytest.LogCaptureFixture,
     payload: str,
 ) -> None:
@@ -1439,7 +1441,7 @@ async def test_center_display_state_unexpected_value(
 
 
 async def test_setup_fails_without_display_name(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient
+    hass: HomeAssistant, mqtt_mock: Any
 ) -> None:
     """Test setup is retried when the display name topic is not retained."""
     entry = MockConfigEntry(
@@ -1463,7 +1465,7 @@ async def test_setup_fails_without_display_name(
 
 
 async def test_setup_retries_when_mqtt_disconnected(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient
+    hass: HomeAssistant, mqtt_mock: Any
 ) -> None:
     """Test setup is retried when the MQTT client is not connected."""
     entry = MockConfigEntry(
