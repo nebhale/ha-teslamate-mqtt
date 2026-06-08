@@ -29,6 +29,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version-file: pyproject.toml
+          cache: pip
 
       - name: Install validation tools
         run: python -m pip install --upgrade ruff
@@ -38,3 +39,28 @@ jobs:
 
       - name: Format
         run: ruff format --check .
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: pyproject.toml
+          cache: pip
+
+      - name: Install test dependencies
+        run: >-
+          python -m pip install --upgrade
+          pytest-cov
+          pytest-homeassistant-custom-component
+
+      - name: Test
+        run: >-
+          pytest tests
+          --cov=custom_components.teslamate_mqtt
+          --cov-report=term-missing
+          --cov-report=xml
+          -vv
