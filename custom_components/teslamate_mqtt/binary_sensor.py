@@ -8,7 +8,7 @@ from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from . import TeslaMateMqttConfigEntry
+from . import TeslaMateMqttConfigEntry, TeslaMateMqttData
 from .const import (
     TOPIC_CHARGE_PORT_DOOR_OPEN,
     TOPIC_CHARGING_STATE,
@@ -86,7 +86,7 @@ class TeslaMateChargePortDoorOpenBinarySensor(TeslaMateMqttEntity, BinarySensorE
     _attr_icon = "mdi:ev-plug-tesla"
     _attr_name = "Charge Port"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_CHARGE_PORT_DOOR_OPEN)
 
@@ -105,7 +105,7 @@ class TeslaMateChargingBinarySensor(TeslaMateMqttEntity, BinarySensorEntity):
     _attr_icon = "mdi:battery-charging"
     _attr_name = "Charging"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_CHARGING_STATE)
 
@@ -129,7 +129,7 @@ class TeslaMateDoorsOpenBinarySensor(TeslaMateDoorOpenBinarySensor):
 
     _attr_name = "Doors"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_DOORS_OPEN)
 
@@ -139,7 +139,7 @@ class TeslaMateDriverFrontDoorOpenBinarySensor(TeslaMateDoorOpenBinarySensor):
 
     _attr_name = "Door (Driver Front)"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_DRIVER_FRONT_DOOR_OPEN)
 
@@ -149,7 +149,7 @@ class TeslaMateDriverRearDoorOpenBinarySensor(TeslaMateDoorOpenBinarySensor):
 
     _attr_name = "Door (Driver Rear)"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_DRIVER_REAR_DOOR_OPEN)
 
@@ -159,7 +159,7 @@ class TeslaMatePassengerFrontDoorOpenBinarySensor(TeslaMateDoorOpenBinarySensor)
 
     _attr_name = "Door (Passenger Front)"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_PASSENGER_FRONT_DOOR_OPEN)
 
@@ -169,7 +169,7 @@ class TeslaMatePassengerRearDoorOpenBinarySensor(TeslaMateDoorOpenBinarySensor):
 
     _attr_name = "Door (Passenger Rear)"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_PASSENGER_REAR_DOOR_OPEN)
 
@@ -180,7 +180,7 @@ class TeslaMateFrunkOpenBinarySensor(TeslaMateDoorOpenBinarySensor):
     _attr_icon = "mdi:car"
     _attr_name = "Frunk"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_FRUNK_OPEN)
 
@@ -191,7 +191,7 @@ class TeslaMateTrunkOpenBinarySensor(TeslaMateDoorOpenBinarySensor):
     _attr_icon = "mdi:car"
     _attr_name = "Trunk"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_TRUNK_OPEN)
 
@@ -203,7 +203,7 @@ class TeslaMateWindowsOpenBinarySensor(TeslaMateBooleanBinarySensor):
     _attr_icon = "mdi:car-door"
     _attr_name = "Windows"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_WINDOWS_OPEN)
 
@@ -216,7 +216,7 @@ class TeslaMateHealthyBinarySensor(TeslaMateMqttEntity, BinarySensorEntity):
     _attr_icon = "mdi:heart-pulse"
     _attr_name = "Health"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_HEALTHY)
 
@@ -235,7 +235,7 @@ class TeslaMateClimateOnBinarySensor(TeslaMateBooleanBinarySensor):
     _attr_icon = "mdi:air-conditioner"
     _attr_name = "Climate"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_IS_CLIMATE_ON)
 
@@ -247,7 +247,7 @@ class TeslaMatePreconditioningBinarySensor(TeslaMateBooleanBinarySensor):
     _attr_icon = "mdi:air-conditioner"
     _attr_name = "Preconditioning"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_IS_PRECONDITIONING)
 
@@ -259,7 +259,7 @@ class TeslaMateUserPresentBinarySensor(TeslaMateBooleanBinarySensor):
     _attr_icon = "mdi:account"
     _attr_name = "Occupancy"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_IS_USER_PRESENT)
 
@@ -270,7 +270,7 @@ class TeslaMateLockedBinarySensor(TeslaMateMqttEntity, BinarySensorEntity):
     _attr_device_class = BinarySensorDeviceClass.LOCK
     _attr_name = "Lock"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_LOCKED)
 
@@ -288,7 +288,7 @@ class TeslaMatePluggedInBinarySensor(TeslaMateBooleanBinarySensor):
     _attr_device_class = BinarySensorDeviceClass.PLUG
     _attr_name = "Plug"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_PLUGGED_IN)
 
@@ -300,7 +300,7 @@ class TeslaMateSentryModeBinarySensor(TeslaMateBooleanBinarySensor):
     _attr_icon = "mdi:cctv"
     _attr_name = "Sentry Mode"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_SENTRY_MODE)
 
@@ -320,7 +320,7 @@ class TeslaMateTireSoftWarningFrontLeftBinarySensor(
 
     _attr_name = "Tire Soft (Front Left)"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_TPMS_SOFT_WARNING_FL)
 
@@ -332,7 +332,7 @@ class TeslaMateTireSoftWarningFrontRightBinarySensor(
 
     _attr_name = "Tire Soft (Front Right)"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_TPMS_SOFT_WARNING_FR)
 
@@ -344,7 +344,7 @@ class TeslaMateTireSoftWarningRearLeftBinarySensor(
 
     _attr_name = "Tire Soft (Rear Left)"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_TPMS_SOFT_WARNING_RL)
 
@@ -356,6 +356,6 @@ class TeslaMateTireSoftWarningRearRightBinarySensor(
 
     _attr_name = "Tire Soft (Rear Right)"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_TPMS_SOFT_WARNING_RR)

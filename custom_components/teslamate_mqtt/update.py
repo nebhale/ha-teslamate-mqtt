@@ -4,7 +4,7 @@ from homeassistant.components.update import UpdateDeviceClass, UpdateEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from . import TeslaMateMqttConfigEntry
+from . import TeslaMateMqttConfigEntry, TeslaMateMqttData
 from .const import TOPIC_UPDATE_AVAILABLE, TOPIC_UPDATE_VERSION, TOPIC_VERSION
 from .entity import TeslaMateMqttEntity
 
@@ -24,7 +24,7 @@ class TeslaMateUpdateEntity(TeslaMateMqttEntity, UpdateEntity):
     _attr_device_class = UpdateDeviceClass.FIRMWARE
     _attr_name = "Update"
 
-    def __init__(self, data) -> None:
+    def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the update entity."""
         super().__init__(data, TOPIC_UPDATE_AVAILABLE)
 
