@@ -1,11 +1,6 @@
 """Test fixtures for the TeslaMate MQTT custom integration."""
 
-from pathlib import Path
-import sys
-
 import pytest
-
-sys.path.insert(0, str(Path(__file__).parents[3] / "config"))
 
 
 @pytest.fixture(autouse=True)
