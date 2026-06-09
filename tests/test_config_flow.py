@@ -1,6 +1,5 @@
 """Tests for the TeslaMate MQTT config flow."""
 
-from typing import Any, cast
 from unittest.mock import patch
 
 from homeassistant.config_entries import SOURCE_MQTT, SOURCE_USER
@@ -11,13 +10,6 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.teslamate_mqtt.const import CONF_TOPIC_ROOT, DOMAIN
 from tests.typing import MqttMockHAClient
-
-type FlowResultDict = dict[str, Any]
-
-
-def _flow_result(result: object) -> FlowResultDict:
-    """Return a flow result as a plain dictionary for test assertions."""
-    return cast(FlowResultDict, result)
 
 
 async def test_mqtt_discovery(hass: HomeAssistant, mqtt_mock: MqttMockHAClient) -> None:
@@ -31,10 +23,8 @@ async def test_mqtt_discovery(hass: HomeAssistant, mqtt_mock: MqttMockHAClient) 
         timestamp=0.0,
     )
 
-    result = _flow_result(
-        await hass.config_entries.flow.async_init(
-            DOMAIN, context={"source": SOURCE_MQTT}, data=discovery_info
-        )
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_MQTT}, data=discovery_info
     )
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
@@ -56,10 +46,8 @@ async def test_mqtt_discovery_namespaced_topic(
         timestamp=0.0,
     )
 
-    result = _flow_result(
-        await hass.config_entries.flow.async_init(
-            DOMAIN, context={"source": SOURCE_MQTT}, data=discovery_info
-        )
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_MQTT}, data=discovery_info
     )
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
@@ -87,10 +75,8 @@ async def test_mqtt_discovery_updates_existing_title(
         timestamp=0.0,
     )
 
-    result = _flow_result(
-        await hass.config_entries.flow.async_init(
-            DOMAIN, context={"source": SOURCE_MQTT}, data=discovery_info
-        )
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_MQTT}, data=discovery_info
     )
 
     assert result["type"] is FlowResultType.ABORT
@@ -111,10 +97,8 @@ async def test_mqtt_discovery_invalid_topic(
         timestamp=0.0,
     )
 
-    result = _flow_result(
-        await hass.config_entries.flow.async_init(
-            DOMAIN, context={"source": SOURCE_MQTT}, data=discovery_info
-        )
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_MQTT}, data=discovery_info
     )
 
     assert result["type"] is FlowResultType.ABORT
@@ -123,10 +107,8 @@ async def test_mqtt_discovery_invalid_topic(
 
 async def test_user_flow(hass: HomeAssistant, mqtt_mock: MqttMockHAClient) -> None:
     """Test manual configuration validates the display name topic."""
-    result = _flow_result(
-        await hass.config_entries.flow.async_init(
-            DOMAIN, context={"source": SOURCE_USER}
-        )
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_USER}
     )
 
     assert result["type"] is FlowResultType.FORM
@@ -135,10 +117,8 @@ async def test_user_flow(hass: HomeAssistant, mqtt_mock: MqttMockHAClient) -> No
         "custom_components.teslamate_mqtt.config_flow._async_get_display_name",
         return_value="Roadrunner",
     ):
-        result = _flow_result(
-            await hass.config_entries.flow.async_configure(
-                result["flow_id"], {CONF_TOPIC_ROOT: "teslamate/cars/1"}
-            )
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {CONF_TOPIC_ROOT: "teslamate/cars/1"}
         )
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
@@ -151,20 +131,16 @@ async def test_user_flow_no_display_name(
     hass: HomeAssistant, mqtt_mock: MqttMockHAClient
 ) -> None:
     """Test manual configuration fails when display name is not retained."""
-    result = _flow_result(
-        await hass.config_entries.flow.async_init(
-            DOMAIN, context={"source": SOURCE_USER}
-        )
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_USER}
     )
 
     with patch(
         "custom_components.teslamate_mqtt.config_flow._async_get_display_name",
         return_value=None,
     ):
-        result = _flow_result(
-            await hass.config_entries.flow.async_configure(
-                result["flow_id"], {CONF_TOPIC_ROOT: "teslamate/cars/1"}
-            )
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {CONF_TOPIC_ROOT: "teslamate/cars/1"}
         )
 
     assert result["type"] is FlowResultType.FORM
@@ -175,16 +151,12 @@ async def test_user_flow_invalid_topic_root(
     hass: HomeAssistant, mqtt_mock: MqttMockHAClient
 ) -> None:
     """Test manual configuration rejects invalid topic roots."""
-    result = _flow_result(
-        await hass.config_entries.flow.async_init(
-            DOMAIN, context={"source": SOURCE_USER}
-        )
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_USER}
     )
 
-    result = _flow_result(
-        await hass.config_entries.flow.async_configure(
-            result["flow_id"], {CONF_TOPIC_ROOT: "teslamate/cars/+"}
-        )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {CONF_TOPIC_ROOT: "teslamate/cars/+"}
     )
 
     assert result["type"] is FlowResultType.FORM
