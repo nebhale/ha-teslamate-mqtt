@@ -3,7 +3,8 @@
 import asyncio
 from typing import Any
 
-from homeassistant.components import mqtt
+from homeassistant.components.mqtt import client as mqtt_client, util as mqtt_util
+from homeassistant.components.mqtt.models import ReceiveMessage
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import config_validation as cv
@@ -51,14 +52,14 @@ async def _async_get_display_name(hass: HomeAssistant, topic_root: str) -> str |
     display_name: str | None = None
 
     @callback
-    def message_received(msg: mqtt.ReceiveMessage) -> None:
+    def message_received(msg: ReceiveMessage) -> None:
         nonlocal display_name
         if not isinstance(msg.payload, str) or not msg.payload:
             return
         display_name = msg.payload
         event.set()
 
-    unsub = await mqtt.async_subscribe(
+    unsub = await mqtt_client.async_subscribe(
         hass, f"{topic_root}/{TOPIC_DISPLAY_NAME}", message_received
     )
 
@@ -115,14 +116,14 @@ class TeslaMateMqttConfigFlow(ConfigFlow, domain=DOMAIN):
             topic_root = _normalize_topic_root(user_input[CONF_TOPIC_ROOT])
 
             try:
-                mqtt.valid_publish_topic(topic_root)
+                mqtt_util.valid_publish_topic(topic_root)
             except vol.Invalid:
                 errors[CONF_TOPIC_ROOT] = "invalid_topic_root"
             else:
                 await self.async_set_unique_id(topic_root)
                 self._abort_if_unique_id_configured()
 
-                if not await mqtt.async_wait_for_mqtt_client(self.hass):
+                if not await mqtt_util.async_wait_for_mqtt_client(self.hass):
                     errors["base"] = "mqtt_not_connected"
                 elif (
                     display_name := await _async_get_display_name(self.hass, topic_root)

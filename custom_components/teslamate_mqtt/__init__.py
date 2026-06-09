@@ -6,7 +6,8 @@ import logging
 import re
 
 from homeassistant.components import mqtt
-from homeassistant.components.mqtt import ReceiveMessage
+from homeassistant.components.mqtt import client as mqtt_client, util as mqtt_util
+from homeassistant.components.mqtt.models import ReceiveMessage
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
@@ -28,7 +29,6 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 DISPLAY_NAME_TIMEOUT = 2
-SUBSCRIBE_DONE_TIMEOUT = 10
 
 _PLATFORMS: list[Platform] = [
     Platform.BINARY_SENSOR,
@@ -79,29 +79,20 @@ class TeslaMateMqttData:
     async def async_start(self) -> bool:
         """Start listening for TeslaMate MQTT messages."""
         topic = f"{self.topic_root}/#"
-        subscribe_done = asyncio.Event()
 
         @callback
         def message_received(msg: ReceiveMessage) -> None:
             self._async_handle_message(msg.topic, msg.payload)
 
-        unsub_subscribe_done = mqtt.async_on_subscribe_done(
-            self.hass, topic, 0, subscribe_done.set
-        )
-        self._unsub_mqtt = await mqtt.async_subscribe(
+        self._unsub_mqtt = await mqtt_client.async_subscribe(
             self.hass, topic, message_received
         )
 
         try:
-            async with asyncio.timeout(SUBSCRIBE_DONE_TIMEOUT):
-                await subscribe_done.wait()
-
             async with asyncio.timeout(DISPLAY_NAME_TIMEOUT):
                 await self._display_name_seen.wait()
         except TimeoutError:
             return False
-        finally:
-            unsub_subscribe_done()
 
         return True
 
@@ -207,7 +198,7 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: TeslaMateMqttConfigEntry
 ) -> bool:
     """Set up TeslaMate MQTT from a config entry."""
-    if not await mqtt.async_wait_for_mqtt_client(hass):
+    if not await mqtt_util.async_wait_for_mqtt_client(hass):
         _LOGGER.error("MQTT integration not available")
         raise ConfigEntryNotReady("MQTT integration not available")
     if not mqtt.is_connected(hass):

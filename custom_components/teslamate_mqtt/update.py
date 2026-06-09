@@ -2,7 +2,7 @@
 
 from homeassistant.components.update import UpdateDeviceClass, UpdateEntity
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import TeslaMateMqttConfigEntry, TeslaMateMqttData
 from .const import TOPIC_UPDATE_AVAILABLE, TOPIC_UPDATE_VERSION, TOPIC_VERSION
@@ -12,7 +12,7 @@ from .entity import TeslaMateMqttEntity
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: TeslaMateMqttConfigEntry,
-    async_add_entities: AddConfigEntryEntitiesCallback,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up TeslaMate MQTT update entities."""
     async_add_entities([TeslaMateUpdateEntity(entry.runtime_data)])

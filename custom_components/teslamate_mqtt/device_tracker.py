@@ -1,8 +1,12 @@
 """Device tracker platform for TeslaMate MQTT."""
 
-from homeassistant.components.device_tracker import SourceType, TrackerEntity
+from typing import cast
+
+from homeassistant.components.device_tracker.config_entry import TrackerEntity
+from homeassistant.components.device_tracker.const import SourceType
+from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import TeslaMateMqttConfigEntry, TeslaMateMqttData
 from .const import TOPIC_LATITUDE, TOPIC_LONGITUDE
@@ -12,7 +16,7 @@ from .entity import TeslaMateMqttEntity
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: TeslaMateMqttConfigEntry,
-    async_add_entities: AddConfigEntryEntitiesCallback,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up TeslaMate MQTT device tracker."""
     async_add_entities([TeslaMateDeviceTracker(entry.runtime_data)])
@@ -21,7 +25,7 @@ async def async_setup_entry(
 class TeslaMateDeviceTracker(TeslaMateMqttEntity, TrackerEntity):
     """Representation of the Tesla location."""
 
-    _attr_entity_category = None
+    _attr_entity_category = cast(EntityCategory, None)
     _attr_icon = "mdi:crosshairs-gps"
     _attr_name = None
 

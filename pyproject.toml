@@ -6,6 +6,9 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "Apache-2.0" }
 authors = [{ name = "Ben Hale" }]
+dependencies = [
+    "homeassistant==2024.6.0",
+]
 
 [build-system]
 requires = ["setuptools"]
@@ -293,7 +296,7 @@ lint = [
 ]
 test = [
     "pytest-cov",
-    "pytest-homeassistant-custom-component",
+    "pytest-homeassistant-custom-component==0.13.132",
 ]
 
 [tool.pylint.MAIN]

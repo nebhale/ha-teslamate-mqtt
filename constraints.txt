@@ -1,0 +1,6 @@
+# Keep local and CI installs aligned with the Home Assistant release supported by HACS.
+-c https://raw.githubusercontent.com/home-assistant/core/2024.6.0/homeassistant/package_constraints.txt
+
+# Home Assistant 2024.6.0 pulls acme 2.10.0 through hass-nabucasa; josepy 2.x
+# removed APIs that acme 2.10.0 imports at runtime.
+josepy<2

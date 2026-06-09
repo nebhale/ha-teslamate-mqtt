@@ -6,7 +6,7 @@ from homeassistant.components.binary_sensor import (
 )
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import TeslaMateMqttConfigEntry, TeslaMateMqttData
 from .const import (
@@ -38,7 +38,7 @@ from .entity import TeslaMateMqttEntity
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: TeslaMateMqttConfigEntry,
-    async_add_entities: AddConfigEntryEntitiesCallback,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up TeslaMate MQTT binary sensors."""
     async_add_entities(
