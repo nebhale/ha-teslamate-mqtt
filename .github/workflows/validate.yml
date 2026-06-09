@@ -23,25 +23,27 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v6
+      - uses: astral-sh/setup-uv@v5
         with:
-          python-version-file: pyproject.toml
-          cache: pip
+          enable-cache: true
+
+      - name: Install Python
+        run: uv python install
 
       - name: Install validation tools
-        run: python -m pip install --upgrade ".[lint]"
+        run: uv sync --frozen --group lint --no-install-project
 
       - name: Lint
-        run: ruff check .
+        run: uv run --no-sync ruff check .
 
       - name: Format
-        run: ruff format --check .
+        run: uv run --no-sync ruff format --check .
 
       - name: Pylint
-        run: pylint custom_components tests
+        run: uv run --no-sync pylint custom_components tests
 
       - name: Mypy
-        run: mypy
+        run: uv run --no-sync mypy
 
   test:
     name: Test
@@ -49,17 +51,19 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v6
+      - uses: astral-sh/setup-uv@v5
         with:
-          python-version-file: pyproject.toml
-          cache: pip
+          enable-cache: true
+
+      - name: Install Python
+        run: uv python install
 
       - name: Install test dependencies
-        run: python -m pip install --upgrade ".[test]"
+        run: uv sync --frozen --group test --no-install-project
 
       - name: Test
         run: >-
-          pytest tests
+          uv run --no-sync pytest tests
           --cov=custom_components.teslamate_mqtt
           --cov-report=term-missing
           --cov-report=xml

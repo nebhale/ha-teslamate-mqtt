@@ -3,9 +3,13 @@ name = "ha-teslamate-mqtt"
 version = "0.1.0"
 description = "Home Assistant custom integration for TeslaMate MQTT data"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.14.2"
 license = { text = "Apache-2.0" }
 authors = [{ name = "Ben Hale" }]
+dependencies = [
+    "homeassistant==2026.6.1",
+    "voluptuous==0.15.2",
+]
 
 [build-system]
 requires = ["setuptools"]
@@ -284,20 +288,24 @@ convention = "google"
 testpaths = ["tests"]
 asyncio_mode = "auto"
 
-[project.optional-dependencies]
+[tool.uv]
+package = false
+
+[dependency-groups]
 lint = [
     "mypy==1.20.2",
-    "ruff>=0.15.1",
     "pylint==4.0.5",
     "pylint-per-file-ignores==3.2.1",
+    "ruff==0.15.16",
 ]
 test = [
-    "pytest-cov",
-    "pytest-homeassistant-custom-component",
+    "pytest==9.0.3",
+    "pytest-cov==7.1.0",
+    "pytest-homeassistant-custom-component==0.13.337",
 ]
 
 [tool.pylint.MAIN]
-py-version = "3.12"
+py-version = "3.14"
 jobs = 2
 load-plugins = [
     "pylint.extensions.code_style",
