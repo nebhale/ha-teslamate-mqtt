@@ -123,7 +123,9 @@ class TeslaMateMqttData:
         return remove_listener
 
     @callback
-    def _async_handle_message(self, topic: str, payload: str | bytes | None) -> None:
+    def _async_handle_message(
+        self, topic: str, payload: str | bytes | bytearray | None
+    ) -> None:
         """Handle an incoming MQTT message."""
         if not topic.startswith(f"{self.topic_root}/"):
             return
