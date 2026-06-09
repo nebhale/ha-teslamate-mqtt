@@ -1,0 +1,37 @@
+pyproject.toml
+  s_cede68878a5e1f::t_5e184628eb4d22 9,12
+  s_cede68878a5e1f::t_ebacd59a0d1043 6
+  s_cede68878a5e1f::t_b19431bb7433aa 305
+  s_cede68878a5e1f::t_4107f25f35026f 10-11,296,299-301
+custom_components/teslamate_mqtt/device_tracker.py
+  s_cede68878a5e1f::t_f4893c5c32ad18 3-4,6,27
+README.md
+  s_cede68878a5e1f::t_0d52da0177302f 31-35,62-66,68
+  s_cede68878a5e1f::t_4a2c46681fc974 36-45
+  s_cede68878a5e1f::t_edbf194177b854 51-53,56,67
+mypy.ini
+  s_cede68878a5e1f::t_7db1cd9c733bec 5
+  s_cede68878a5e1f::t_ee59195c6579d8 45
+.python-version
+  s_cede68878a5e1f::t_4a2c46681fc974 1
+hacs.json
+  s_cede68878a5e1f::t_9e87b21e4de1ce 3
+custom_components/teslamate_mqtt/__init__.py
+  s_cede68878a5e1f::t_6cd8b96c51ca52 126-128
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "db37d920bde2a2d9e6c26220fc87284bce1a28f5",
+  "prompts": {},
+  "sessions": {
+    "s_cede68878a5e1f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019eaead-4005-7841-b3b4-32c558c4601d",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Ben Hale <nebhale@nebhale.com>"
+    }
+  }
+}
