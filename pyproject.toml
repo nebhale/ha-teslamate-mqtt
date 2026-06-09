@@ -288,7 +288,10 @@ convention = "google"
 testpaths = ["tests"]
 asyncio_mode = "auto"
 
-[project.optional-dependencies]
+[tool.uv]
+package = false
+
+[dependency-groups]
 lint = [
     "mypy==1.20.2",
     "pylint==4.0.5",

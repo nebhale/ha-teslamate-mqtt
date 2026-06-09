@@ -30,42 +30,43 @@ custom_components/teslamate_mqtt/
 
 Runtime imports from `custom_components/teslamate_mqtt` are declared as normal
 project dependencies in `pyproject.toml`. Test-only packages live in the `test`
-extra, and validation tools live in the `lint` extra so each environment can
+dependency group, and validation tools live in the `lint` group so each environment can
 install only what it needs.
 
 ### Environment
 
-This repository includes a `.python-version` file for pyenv users. Install the
-configured Python version, then create a local virtual environment:
+This repository uses uv for Python and dependency management. Install uv and let
+it choose a Python version from `pyproject.toml`, then sync the dependency groups
+you need:
 
 ```bash
-pyenv install --skip-existing
-python -m venv .venv
+uv python install
+uv sync --group lint --group test --no-install-project
 ```
 
 ### Linting
 
 This repository vendors Home Assistant Core's Ruff and Pylint configuration in
 `pyproject.toml`, with first-party import paths adjusted for the standalone
-custom integration layout. Install lint dependencies with the `lint` extra,
-then run Ruff and Pylint directly. Use a normal, non-editable install so Home
-Assistant's custom component loader sees the repository layout the same way CI
-does. The GitHub Validate workflow runs the same checks on pull requests:
+custom integration layout. Sync the `lint` dependency group, then run the
+validation tools through uv. The GitHub Validate workflow runs the same checks
+on pull requests:
 
 ```bash
-python -m pip install .[lint]
-ruff check .
-ruff format --check .
-pylint custom_components tests
+uv sync --group lint --no-install-project
+uv run --no-sync ruff check .
+uv run --no-sync ruff format --check .
+uv run --no-sync pylint custom_components tests
+uv run --no-sync mypy
 ```
 
 ### Testing
 
-Install the test extra before running the test suite:
+Sync the `test` dependency group before running the test suite:
 
 ```bash
-python -m pip install .[test]
-pytest tests
+uv sync --group test --no-install-project
+uv run --no-sync pytest tests
 ```
 
 ## Status
