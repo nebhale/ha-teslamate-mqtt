@@ -293,7 +293,7 @@ package = false
 
 [dependency-groups]
 lint = [
-    "mypy==1.20.2",
+    "mypy==2.1.0",
     "pylint==4.0.5",
     "pylint-per-file-ignores==3.2.1",
     "ruff==0.15.16",
