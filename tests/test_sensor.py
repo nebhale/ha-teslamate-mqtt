@@ -1,36 +1,19 @@
-"""Tests for TeslaMate MQTT entities."""
+"""Tests for TeslaMate MQTT sensors."""
 
-import asyncio
-from collections.abc import Callable, Coroutine
 import logging
-from typing import Any
-from unittest.mock import patch
 
-from homeassistant.components import mqtt
-from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.sensor import (
     ATTR_STATE_CLASS,
     SensorDeviceClass,
     SensorStateClass,
 )
-from homeassistant.components.update import UpdateDeviceClass
-from homeassistant.components.update.const import (
-    ATTR_INSTALLED_VERSION,
-    ATTR_LATEST_VERSION,
-)
 from homeassistant.const import (
     ATTR_DEVICE_CLASS,
-    ATTR_GPS_ACCURACY,
     ATTR_ICON,
-    ATTR_LATITUDE,
-    ATTR_LONGITUDE,
     ATTR_UNIT_OF_MEASUREMENT,
     DEGREE,
     PERCENTAGE,
-    STATE_OFF,
-    STATE_ON,
     STATE_UNKNOWN,
-    EntityCategory,
     UnitOfElectricCurrent,
     UnitOfElectricPotential,
     UnitOfEnergy,
@@ -41,139 +24,25 @@ from homeassistant.const import (
     UnitOfTemperature,
     UnitOfTime,
 )
-from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
-from homeassistant.helpers import device_registry as dr, entity_registry as er
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 import pytest
-from pytest_homeassistant_custom_component.common import (
-    MockConfigEntry,
-    async_fire_mqtt_message,
-)
 
-from custom_components.teslamate_mqtt.const import CONF_TOPIC_ROOT, DOMAIN
+from tests.common import (
+    async_fire_teslamate_mqtt_message,
+    async_setup_teslamate_mqtt_entry,
+)
 from tests.typing import MqttMockHAClient
 
 
-@callback
-def _async_on_subscribe_done(
-    hass: HomeAssistant,
-    topic: str,
-    qos: int,
-    on_subscribe_status: Callable[[], None],
-) -> CALLBACK_TYPE:
-    """Call the MQTT subscribe status callback immediately."""
-    on_subscribe_status()
-    return lambda: None
-
-
-async def _async_setup_entry(
-    hass: HomeAssistant,
-    topic_root: str = "teslamate/cars/1",
-    display_name: str = "Roadrunner",
-) -> MockConfigEntry:
-    """Set up a TeslaMate MQTT config entry."""
-    entry = MockConfigEntry(
-        domain=DOMAIN,
-        title=display_name,
-        data={CONF_TOPIC_ROOT: topic_root},
-        unique_id=topic_root,
-    )
-    entry.add_to_hass(hass)
-
-    subscribe_started = asyncio.Event()
-    real_async_subscribe = mqtt.async_subscribe
-
-    async def async_subscribe(
-        hass: HomeAssistant,
-        topic: str,
-        msg_callback: Callable[[mqtt.ReceiveMessage], Coroutine[Any, Any, None] | None],
-        qos: int = 0,
-        encoding: str | None = "utf-8",
-    ) -> CALLBACK_TYPE:
-        """Subscribe to MQTT and mark the subscription as started."""
-        unsub = await real_async_subscribe(hass, topic, msg_callback, qos, encoding)
-        subscribe_started.set()
-        return unsub
-
-    with (
-        patch(
-            "custom_components.teslamate_mqtt.mqtt.async_on_subscribe_done",
-            side_effect=_async_on_subscribe_done,
-        ),
-        patch(
-            "custom_components.teslamate_mqtt.mqtt.async_subscribe",
-            side_effect=async_subscribe,
-        ),
-    ):
-        setup_task = hass.async_create_task(
-            hass.config_entries.async_setup(entry.entry_id)
-        )
-        await subscribe_started.wait()
-        async_fire_mqtt_message(
-            hass, f"{topic_root}/display_name", display_name, retain=True
-        )
-        assert await setup_task
-    await hass.async_block_till_done()
-
-    return entry
-
-
-async def test_entities(
+async def test_sensors(
     hass: HomeAssistant,
     mqtt_mock: MqttMockHAClient,
     entity_registry: er.EntityRegistry,
-    device_registry: dr.DeviceRegistry,
 ) -> None:
-    """Test TeslaMate MQTT entities."""
-    entry = await _async_setup_entry(hass)
+    """Test TeslaMate MQTT sensors."""
+    await async_setup_teslamate_mqtt_entry(hass)
 
-    assert hass.states.get("binary_sensor.roadrunner_charge_port").state == (
-        STATE_UNKNOWN
-    )
-    assert hass.states.get("binary_sensor.roadrunner_charging").state == STATE_UNKNOWN
-    assert hass.states.get("binary_sensor.roadrunner_doors").state == STATE_UNKNOWN
-    assert hass.states.get("binary_sensor.roadrunner_door_driver_front").state == (
-        STATE_UNKNOWN
-    )
-    assert hass.states.get("binary_sensor.roadrunner_door_driver_rear").state == (
-        STATE_UNKNOWN
-    )
-    assert hass.states.get("binary_sensor.roadrunner_door_passenger_front").state == (
-        STATE_UNKNOWN
-    )
-    assert hass.states.get("binary_sensor.roadrunner_door_passenger_rear").state == (
-        STATE_UNKNOWN
-    )
-    assert hass.states.get("binary_sensor.roadrunner_frunk").state == STATE_UNKNOWN
-    assert hass.states.get("binary_sensor.roadrunner_health").state == STATE_UNKNOWN
-    assert hass.states.get("binary_sensor.roadrunner_climate").state == STATE_UNKNOWN
-    assert hass.states.get("binary_sensor.roadrunner_preconditioning").state == (
-        STATE_UNKNOWN
-    )
-    assert hass.states.get("binary_sensor.roadrunner_occupancy").state == STATE_UNKNOWN
-    assert hass.states.get("binary_sensor.roadrunner_lock").state == STATE_UNKNOWN
-    assert hass.states.get("binary_sensor.roadrunner_plug").state == STATE_UNKNOWN
-    assert hass.states.get("binary_sensor.roadrunner_sentry_mode").state == (
-        STATE_UNKNOWN
-    )
-    assert hass.states.get("binary_sensor.roadrunner_trunk").state == STATE_UNKNOWN
-    assert hass.states.get("binary_sensor.roadrunner_windows").state == STATE_UNKNOWN
-    assert (
-        hass.states.get("binary_sensor.roadrunner_tire_soft_front_left").state
-        == STATE_UNKNOWN
-    )
-    assert (
-        hass.states.get("binary_sensor.roadrunner_tire_soft_front_right").state
-        == STATE_UNKNOWN
-    )
-    assert hass.states.get("binary_sensor.roadrunner_tire_soft_rear_left").state == (
-        STATE_UNKNOWN
-    )
-    assert hass.states.get("binary_sensor.roadrunner_tire_soft_rear_right").state == (
-        STATE_UNKNOWN
-    )
-    assert hass.states.get("binary_sensor.roadrunner_update") is None
-    assert hass.states.get("update.roadrunner_update").state == STATE_UNKNOWN
-    assert hass.states.get("device_tracker.roadrunner").state == STATE_UNKNOWN
     assert hass.states.get("sensor.roadrunner_battery").state == STATE_UNKNOWN
     assert hass.states.get("sensor.roadrunner_center_display").state == STATE_UNKNOWN
     assert hass.states.get("sensor.roadrunner_energy_added").state == STATE_UNKNOWN
@@ -236,246 +105,47 @@ async def test_entities(
     assert hass.states.get("sensor.roadrunner_version") is None
     assert hass.states.get("sensor.roadrunner_wheel_type") is None
 
-    async_fire_mqtt_message(hass, "teslamate/cars/1/charge_port_door_open", "true")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/doors_open", "true")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/driver_front_door_open", "true")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/driver_rear_door_open", "false")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/passenger_front_door_open", "true")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/passenger_rear_door_open", "false")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/frunk_open", "true")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/healthy", "false")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/is_climate_on", "true")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/is_preconditioning", "false")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/is_user_present", "true")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/locked", "true")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/plugged_in", "true")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/sentry_mode", "true")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/trunk_open", "true")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/windows_open", "true")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/tpms_soft_warning_fl", "true")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/tpms_soft_warning_fr", "false")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/tpms_soft_warning_rl", "false")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/tpms_soft_warning_rr", "true")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/update_available", "true")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/latitude", "37.123")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/longitude", "-122.456")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/battery_level", "74")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/center_display_state", "8")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/charge_energy_added", "12.3")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/charge_limit_soc", "80")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/charge_current_request", "24")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/charge_current_request_max", "48")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/charger_actual_current", "40")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/charger_phases", "3")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/charger_power", "11")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/charger_voltage", "240")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/charging_state", "NoPower")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/climate_keeper_mode", "dog")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/elevation", "123")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/exterior_color", "DeepBlue")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/geofence", "Home")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/heading", "270")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/inside_temp", "22.4")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/outside_temp", "18.7")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/odometer", "12345.6")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/power", "-7")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/est_battery_range_km", "321.5")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/ideal_battery_range_km", "330.1")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/rated_battery_range_km", "325.7")
-    async_fire_mqtt_message(
-        hass,
-        "teslamate/cars/1/scheduled_charging_start_time",
-        "2026-06-07T12:34:56+00:00",
+    async_fire_teslamate_mqtt_message(hass, "battery_level", "74")
+    async_fire_teslamate_mqtt_message(hass, "center_display_state", "8")
+    async_fire_teslamate_mqtt_message(hass, "charge_energy_added", "12.3")
+    async_fire_teslamate_mqtt_message(hass, "charge_limit_soc", "80")
+    async_fire_teslamate_mqtt_message(hass, "charge_current_request", "24")
+    async_fire_teslamate_mqtt_message(hass, "charge_current_request_max", "48")
+    async_fire_teslamate_mqtt_message(hass, "charger_actual_current", "40")
+    async_fire_teslamate_mqtt_message(hass, "charger_phases", "3")
+    async_fire_teslamate_mqtt_message(hass, "charger_power", "11")
+    async_fire_teslamate_mqtt_message(hass, "charger_voltage", "240")
+    async_fire_teslamate_mqtt_message(hass, "charging_state", "NoPower")
+    async_fire_teslamate_mqtt_message(hass, "climate_keeper_mode", "dog")
+    async_fire_teslamate_mqtt_message(hass, "elevation", "123")
+    async_fire_teslamate_mqtt_message(hass, "exterior_color", "DeepBlue")
+    async_fire_teslamate_mqtt_message(hass, "geofence", "Home")
+    async_fire_teslamate_mqtt_message(hass, "heading", "270")
+    async_fire_teslamate_mqtt_message(hass, "inside_temp", "22.4")
+    async_fire_teslamate_mqtt_message(hass, "outside_temp", "18.7")
+    async_fire_teslamate_mqtt_message(hass, "odometer", "12345.6")
+    async_fire_teslamate_mqtt_message(hass, "power", "-7")
+    async_fire_teslamate_mqtt_message(hass, "est_battery_range_km", "321.5")
+    async_fire_teslamate_mqtt_message(hass, "ideal_battery_range_km", "330.1")
+    async_fire_teslamate_mqtt_message(hass, "rated_battery_range_km", "325.7")
+    async_fire_teslamate_mqtt_message(
+        hass, "scheduled_charging_start_time", "2026-06-07T12:34:56+00:00"
     )
-    async_fire_mqtt_message(hass, "teslamate/cars/1/shift_state", "D")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/since", "2026-06-07T12:00:00+00:00")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/speed", "88")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/spoiler_type", "CarbonFiber")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/state", "suspended")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/time_to_full_charge", "1.75")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/tpms_pressure_fl", "2.9")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/tpms_pressure_fr", "2.8")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/tpms_pressure_rl", "2.7")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/tpms_pressure_rr", "2.6")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/update_version", "2026.20.1")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/usable_battery_level", "71")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/version", "2026.14.1")
-    async_fire_mqtt_message(
-        hass, "teslamate/cars/1/wheel_type", "SonicCarbonTwinTurbine19"
-    )
-    async_fire_mqtt_message(hass, "teslamate/cars/1/model", "3")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/trim_badging", "Performance")
+    async_fire_teslamate_mqtt_message(hass, "shift_state", "D")
+    async_fire_teslamate_mqtt_message(hass, "since", "2026-06-07T12:00:00+00:00")
+    async_fire_teslamate_mqtt_message(hass, "speed", "88")
+    async_fire_teslamate_mqtt_message(hass, "spoiler_type", "CarbonFiber")
+    async_fire_teslamate_mqtt_message(hass, "state", "suspended")
+    async_fire_teslamate_mqtt_message(hass, "time_to_full_charge", "1.75")
+    async_fire_teslamate_mqtt_message(hass, "tpms_pressure_fl", "2.9")
+    async_fire_teslamate_mqtt_message(hass, "tpms_pressure_fr", "2.8")
+    async_fire_teslamate_mqtt_message(hass, "tpms_pressure_rl", "2.7")
+    async_fire_teslamate_mqtt_message(hass, "tpms_pressure_rr", "2.6")
+    async_fire_teslamate_mqtt_message(hass, "update_version", "2026.20.1")
+    async_fire_teslamate_mqtt_message(hass, "usable_battery_level", "71")
+    async_fire_teslamate_mqtt_message(hass, "version", "2026.14.1")
+    async_fire_teslamate_mqtt_message(hass, "wheel_type", "SonicCarbonTwinTurbine19")
     await hass.async_block_till_done()
-
-    charge_port_state = hass.states.get("binary_sensor.roadrunner_charge_port")
-    assert charge_port_state.state == STATE_ON
-    assert (
-        charge_port_state.attributes[ATTR_DEVICE_CLASS] == BinarySensorDeviceClass.DOOR
-    )
-    assert charge_port_state.attributes[ATTR_ICON] == "mdi:ev-plug-tesla"
-
-    charging_binary_state = hass.states.get("binary_sensor.roadrunner_charging")
-    assert charging_binary_state.state == STATE_OFF
-    assert (
-        charging_binary_state.attributes[ATTR_DEVICE_CLASS]
-        == BinarySensorDeviceClass.BATTERY_CHARGING
-    )
-    assert charging_binary_state.attributes[ATTR_ICON] == "mdi:battery-charging"
-
-    assert hass.states.get("binary_sensor.roadrunner_doors").state == STATE_ON
-    assert (
-        hass.states.get("binary_sensor.roadrunner_doors").attributes[ATTR_ICON]
-        == "mdi:car-door"
-    )
-
-    driver_front_door_state = hass.states.get(
-        "binary_sensor.roadrunner_door_driver_front"
-    )
-    assert driver_front_door_state.state == STATE_ON
-    assert (
-        driver_front_door_state.attributes[ATTR_DEVICE_CLASS]
-        == BinarySensorDeviceClass.DOOR
-    )
-    assert driver_front_door_state.attributes[ATTR_ICON] == "mdi:car-door"
-
-    driver_rear_door_state = hass.states.get(
-        "binary_sensor.roadrunner_door_driver_rear"
-    )
-    assert driver_rear_door_state.state == STATE_OFF
-    assert (
-        driver_rear_door_state.attributes[ATTR_DEVICE_CLASS]
-        == BinarySensorDeviceClass.DOOR
-    )
-    assert driver_rear_door_state.attributes[ATTR_ICON] == "mdi:car-door"
-
-    passenger_front_door_state = hass.states.get(
-        "binary_sensor.roadrunner_door_passenger_front"
-    )
-    assert passenger_front_door_state.state == STATE_ON
-    assert (
-        passenger_front_door_state.attributes[ATTR_DEVICE_CLASS]
-        == BinarySensorDeviceClass.DOOR
-    )
-    assert passenger_front_door_state.attributes[ATTR_ICON] == "mdi:car-door"
-
-    passenger_rear_door_state = hass.states.get(
-        "binary_sensor.roadrunner_door_passenger_rear"
-    )
-    assert passenger_rear_door_state.state == STATE_OFF
-    assert (
-        passenger_rear_door_state.attributes[ATTR_DEVICE_CLASS]
-        == BinarySensorDeviceClass.DOOR
-    )
-    assert passenger_rear_door_state.attributes[ATTR_ICON] == "mdi:car-door"
-
-    frunk_state = hass.states.get("binary_sensor.roadrunner_frunk")
-    assert frunk_state.state == STATE_ON
-    assert frunk_state.attributes[ATTR_DEVICE_CLASS] == BinarySensorDeviceClass.DOOR
-    assert frunk_state.attributes[ATTR_ICON] == "mdi:car"
-
-    trunk_state = hass.states.get("binary_sensor.roadrunner_trunk")
-    assert trunk_state.state == STATE_ON
-    assert trunk_state.attributes[ATTR_DEVICE_CLASS] == BinarySensorDeviceClass.DOOR
-    assert trunk_state.attributes[ATTR_ICON] == "mdi:car"
-
-    windows_state = hass.states.get("binary_sensor.roadrunner_windows")
-    assert windows_state.state == STATE_ON
-    assert windows_state.attributes[ATTR_DEVICE_CLASS] == BinarySensorDeviceClass.WINDOW
-    assert windows_state.attributes[ATTR_ICON] == "mdi:car-door"
-
-    health_state = hass.states.get("binary_sensor.roadrunner_health")
-    assert health_state.state == STATE_ON
-    assert health_state.attributes[ATTR_DEVICE_CLASS] == BinarySensorDeviceClass.PROBLEM
-    assert health_state.attributes[ATTR_ICON] == "mdi:heart-pulse"
-
-    climate_state = hass.states.get("binary_sensor.roadrunner_climate")
-    assert climate_state.state == STATE_ON
-    assert (
-        climate_state.attributes[ATTR_DEVICE_CLASS] == BinarySensorDeviceClass.RUNNING
-    )
-    assert climate_state.attributes[ATTR_ICON] == "mdi:air-conditioner"
-
-    preconditioning_state = hass.states.get("binary_sensor.roadrunner_preconditioning")
-    assert preconditioning_state.state == STATE_OFF
-    assert (
-        preconditioning_state.attributes[ATTR_DEVICE_CLASS]
-        == BinarySensorDeviceClass.RUNNING
-    )
-    assert preconditioning_state.attributes[ATTR_ICON] == "mdi:air-conditioner"
-
-    occupied_state = hass.states.get("binary_sensor.roadrunner_occupancy")
-    assert occupied_state.state == STATE_ON
-    assert (
-        occupied_state.attributes[ATTR_DEVICE_CLASS]
-        == BinarySensorDeviceClass.OCCUPANCY
-    )
-    assert occupied_state.attributes[ATTR_ICON] == "mdi:account"
-
-    locked_state = hass.states.get("binary_sensor.roadrunner_lock")
-    assert locked_state.state == STATE_OFF
-    assert locked_state.attributes[ATTR_DEVICE_CLASS] == BinarySensorDeviceClass.LOCK
-
-    plug_state = hass.states.get("binary_sensor.roadrunner_plug")
-    assert plug_state.state == STATE_ON
-    assert plug_state.attributes[ATTR_DEVICE_CLASS] == BinarySensorDeviceClass.PLUG
-
-    sentry_mode = hass.states.get("binary_sensor.roadrunner_sentry_mode")
-    assert sentry_mode.state == STATE_ON
-    assert sentry_mode.attributes[ATTR_DEVICE_CLASS] == BinarySensorDeviceClass.RUNNING
-    assert sentry_mode.attributes[ATTR_ICON] == "mdi:cctv"
-
-    tire_soft_front_left = hass.states.get(
-        "binary_sensor.roadrunner_tire_soft_front_left"
-    )
-    assert tire_soft_front_left.state == STATE_ON
-    assert (
-        tire_soft_front_left.attributes[ATTR_DEVICE_CLASS]
-        == BinarySensorDeviceClass.PROBLEM
-    )
-    assert tire_soft_front_left.attributes[ATTR_ICON] == "mdi:car-tire-alert"
-
-    tire_soft_front_right = hass.states.get(
-        "binary_sensor.roadrunner_tire_soft_front_right"
-    )
-    assert tire_soft_front_right.state == STATE_OFF
-    assert (
-        tire_soft_front_right.attributes[ATTR_DEVICE_CLASS]
-        == BinarySensorDeviceClass.PROBLEM
-    )
-    assert tire_soft_front_right.attributes[ATTR_ICON] == "mdi:car-tire-alert"
-
-    tire_soft_rear_left = hass.states.get(
-        "binary_sensor.roadrunner_tire_soft_rear_left"
-    )
-    assert tire_soft_rear_left.state == STATE_OFF
-    assert (
-        tire_soft_rear_left.attributes[ATTR_DEVICE_CLASS]
-        == BinarySensorDeviceClass.PROBLEM
-    )
-    assert tire_soft_rear_left.attributes[ATTR_ICON] == "mdi:car-tire-alert"
-
-    tire_soft_rear_right = hass.states.get(
-        "binary_sensor.roadrunner_tire_soft_rear_right"
-    )
-    assert tire_soft_rear_right.state == STATE_ON
-    assert (
-        tire_soft_rear_right.attributes[ATTR_DEVICE_CLASS]
-        == BinarySensorDeviceClass.PROBLEM
-    )
-    assert tire_soft_rear_right.attributes[ATTR_ICON] == "mdi:car-tire-alert"
-
-    update_state = hass.states.get("update.roadrunner_update")
-    assert update_state.state == STATE_ON
-    assert update_state.attributes[ATTR_DEVICE_CLASS] == UpdateDeviceClass.FIRMWARE
-    assert update_state.attributes[ATTR_INSTALLED_VERSION] == "2026.14.1"
-    assert update_state.attributes[ATTR_LATEST_VERSION] == "2026.20.1"
-
-    tracker_state = hass.states.get("device_tracker.roadrunner")
-    assert tracker_state.state == "not_home"
-    assert tracker_state.attributes[ATTR_LATITUDE] == 37.123
-    assert tracker_state.attributes[ATTR_LONGITUDE] == -122.456
-    assert tracker_state.attributes[ATTR_GPS_ACCURACY] == 0
-    assert tracker_state.attributes[ATTR_ICON] == "mdi:crosshairs-gps"
 
     battery_state = hass.states.get("sensor.roadrunner_battery")
     assert battery_state.state == "74"
@@ -928,144 +598,8 @@ async def test_entities(
     )
 
     assert hass.states.get("sensor.roadrunner_update_version") is None
-
     assert hass.states.get("sensor.roadrunner_version") is None
 
-    device = device_registry.async_get_device(
-        identifiers={(DOMAIN, "teslamate/cars/1")}
-    )
-    assert device is not None
-    assert device.manufacturer == "Tesla"
-    assert device.name == "Roadrunner"
-    assert device.model == (
-        'Model 3 Performance (Sonic Carbon Twin Turbine 19" Wheels, '
-        "Carbon Fiber Spoiler)"
-    )
-    assert device.sw_version == "2026.14.1"
-
-    assert (
-        entity_registry.async_get("binary_sensor.roadrunner_charge_port").unique_id
-        == "teslamate/cars/1/charge_port_door_open"
-    )
-    assert entity_registry.async_get("binary_sensor.roadrunner_charging").unique_id == (
-        "teslamate/cars/1/charging_state"
-    )
-    assert entity_registry.async_get("binary_sensor.roadrunner_doors").unique_id == (
-        "teslamate/cars/1/doors_open"
-    )
-    assert (
-        entity_registry.async_get(
-            "binary_sensor.roadrunner_door_driver_front"
-        ).unique_id
-        == "teslamate/cars/1/driver_front_door_open"
-    )
-    assert (
-        entity_registry.async_get("binary_sensor.roadrunner_door_driver_rear").unique_id
-        == "teslamate/cars/1/driver_rear_door_open"
-    )
-    assert (
-        entity_registry.async_get(
-            "binary_sensor.roadrunner_door_passenger_front"
-        ).unique_id
-        == "teslamate/cars/1/passenger_front_door_open"
-    )
-    assert (
-        entity_registry.async_get(
-            "binary_sensor.roadrunner_door_passenger_rear"
-        ).unique_id
-        == "teslamate/cars/1/passenger_rear_door_open"
-    )
-    assert entity_registry.async_get("binary_sensor.roadrunner_frunk").unique_id == (
-        "teslamate/cars/1/frunk_open"
-    )
-    assert entity_registry.async_get("binary_sensor.roadrunner_trunk").unique_id == (
-        "teslamate/cars/1/trunk_open"
-    )
-    assert entity_registry.async_get("binary_sensor.roadrunner_windows").unique_id == (
-        "teslamate/cars/1/windows_open"
-    )
-    assert entity_registry.async_get("binary_sensor.roadrunner_health").unique_id == (
-        "teslamate/cars/1/healthy"
-    )
-    assert (
-        entity_registry.async_get("binary_sensor.roadrunner_health").entity_category
-        == EntityCategory.DIAGNOSTIC
-    )
-    assert entity_registry.async_get("binary_sensor.roadrunner_climate").unique_id == (
-        "teslamate/cars/1/is_climate_on"
-    )
-    assert (
-        entity_registry.async_get("binary_sensor.roadrunner_preconditioning").unique_id
-        == "teslamate/cars/1/is_preconditioning"
-    )
-    assert entity_registry.async_get(
-        "binary_sensor.roadrunner_occupancy"
-    ).unique_id == ("teslamate/cars/1/is_user_present")
-    assert entity_registry.async_get("binary_sensor.roadrunner_lock").unique_id == (
-        "teslamate/cars/1/locked"
-    )
-    assert entity_registry.async_get("binary_sensor.roadrunner_plug").unique_id == (
-        "teslamate/cars/1/plugged_in"
-    )
-    assert (
-        entity_registry.async_get("binary_sensor.roadrunner_sentry_mode").unique_id
-        == "teslamate/cars/1/sentry_mode"
-    )
-    assert (
-        entity_registry.async_get(
-            "binary_sensor.roadrunner_tire_soft_front_left"
-        ).unique_id
-        == "teslamate/cars/1/tpms_soft_warning_fl"
-    )
-    assert (
-        entity_registry.async_get(
-            "binary_sensor.roadrunner_tire_soft_front_left"
-        ).entity_category
-        == EntityCategory.DIAGNOSTIC
-    )
-    assert (
-        entity_registry.async_get(
-            "binary_sensor.roadrunner_tire_soft_front_right"
-        ).unique_id
-        == "teslamate/cars/1/tpms_soft_warning_fr"
-    )
-    assert (
-        entity_registry.async_get(
-            "binary_sensor.roadrunner_tire_soft_front_right"
-        ).entity_category
-        == EntityCategory.DIAGNOSTIC
-    )
-    assert (
-        entity_registry.async_get(
-            "binary_sensor.roadrunner_tire_soft_rear_left"
-        ).unique_id
-        == "teslamate/cars/1/tpms_soft_warning_rl"
-    )
-    assert (
-        entity_registry.async_get(
-            "binary_sensor.roadrunner_tire_soft_rear_left"
-        ).entity_category
-        == EntityCategory.DIAGNOSTIC
-    )
-    assert (
-        entity_registry.async_get(
-            "binary_sensor.roadrunner_tire_soft_rear_right"
-        ).unique_id
-        == "teslamate/cars/1/tpms_soft_warning_rr"
-    )
-    assert (
-        entity_registry.async_get(
-            "binary_sensor.roadrunner_tire_soft_rear_right"
-        ).entity_category
-        == EntityCategory.DIAGNOSTIC
-    )
-    assert entity_registry.async_get("binary_sensor.roadrunner_update") is None
-    assert entity_registry.async_get("update.roadrunner_update").unique_id == (
-        "teslamate/cars/1/update_available"
-    )
-    tracker_entry = entity_registry.async_get("device_tracker.roadrunner")
-    assert tracker_entry.unique_id == "teslamate/cars/1/location"
-    assert tracker_entry.entity_category is None
     assert entity_registry.async_get("sensor.roadrunner_battery").unique_id == (
         "teslamate/cars/1/battery_level"
     )
@@ -1191,23 +725,8 @@ async def test_entities(
     )
     assert entity_registry.async_get("sensor.roadrunner_update_version") is None
     assert entity_registry.async_get("sensor.roadrunner_version") is None
-    assert entry.title == "Roadrunner"
 
-    async_fire_mqtt_message(hass, "teslamate/cars/1/doors_open", "false")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/display_name", "Bluebird")
-    await hass.async_block_till_done()
-
-    assert hass.states.get("binary_sensor.roadrunner_doors").state == STATE_OFF
-    assert hass.states.get("sensor.roadrunner_display_name") is None
-    assert entry.title == "Bluebird"
-    assert (
-        device_registry.async_get_device(
-            identifiers={(DOMAIN, "teslamate/cars/1")}
-        ).name
-        == "Bluebird"
-    )
-
-    async_fire_mqtt_message(hass, "teslamate/cars/1/charge_energy_added", "1.1")
+    async_fire_teslamate_mqtt_message(hass, "charge_energy_added", "1.1")
     await hass.async_block_till_done()
 
     assert hass.states.get("sensor.roadrunner_energy_added").state == "1.1"
@@ -1224,32 +743,12 @@ async def test_charging_state_values(
     hass: HomeAssistant, mqtt_mock: MqttMockHAClient, payload: str, state: str
 ) -> None:
     """Test charging state value formatting."""
-    await _async_setup_entry(hass)
+    await async_setup_teslamate_mqtt_entry(hass)
 
-    async_fire_mqtt_message(hass, "teslamate/cars/1/charging_state", payload)
+    async_fire_teslamate_mqtt_message(hass, "charging_state", payload)
     await hass.async_block_till_done()
 
     assert hass.states.get("sensor.roadrunner_charging_state").state == state
-
-
-@pytest.mark.parametrize(
-    ("payload", "state"),
-    [
-        pytest.param("Charging", STATE_ON, id="charging"),
-        pytest.param("NoPower", STATE_OFF, id="not_charging"),
-        pytest.param("charging", STATE_OFF, id="case_sensitive"),
-    ],
-)
-async def test_charging_binary_sensor_values(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient, payload: str, state: str
-) -> None:
-    """Test charging binary sensor value mapping."""
-    await _async_setup_entry(hass)
-
-    async_fire_mqtt_message(hass, "teslamate/cars/1/charging_state", payload)
-    await hass.async_block_till_done()
-
-    assert hass.states.get("binary_sensor.roadrunner_charging").state == state
 
 
 @pytest.mark.parametrize(
@@ -1263,9 +762,9 @@ async def test_climate_keeper_mode_values(
     hass: HomeAssistant, mqtt_mock: MqttMockHAClient, payload: str, state: str
 ) -> None:
     """Test climate keeper mode value formatting."""
-    await _async_setup_entry(hass)
+    await async_setup_teslamate_mqtt_entry(hass)
 
-    async_fire_mqtt_message(hass, "teslamate/cars/1/climate_keeper_mode", payload)
+    async_fire_teslamate_mqtt_message(hass, "climate_keeper_mode", payload)
     await hass.async_block_till_done()
 
     assert hass.states.get("sensor.roadrunner_climate_keeper").state == state
@@ -1283,92 +782,12 @@ async def test_state_values(
     hass: HomeAssistant, mqtt_mock: MqttMockHAClient, payload: str, state: str
 ) -> None:
     """Test vehicle state value formatting."""
-    await _async_setup_entry(hass)
+    await async_setup_teslamate_mqtt_entry(hass)
 
-    async_fire_mqtt_message(hass, "teslamate/cars/1/state", payload)
+    async_fire_teslamate_mqtt_message(hass, "state", payload)
     await hass.async_block_till_done()
 
     assert hass.states.get("sensor.roadrunner_state").state == state
-
-
-@pytest.mark.parametrize(
-    ("wheel_type", "spoiler_type", "model"),
-    [
-        pytest.param(
-            "SonicCarbonTwinTurbine19",
-            "CarbonFiber",
-            'Model 3 Performance (Sonic Carbon Twin Turbine 19" Wheels, '
-            "Carbon Fiber Spoiler)",
-            id="wheel_and_spoiler",
-        ),
-        pytest.param(
-            "Slipstream",
-            "none",
-            "Model 3 Performance (Slipstream Wheels)",
-            id="wheel_without_spoiler",
-        ),
-    ],
-)
-async def test_model_name_details(
-    hass: HomeAssistant,
-    mqtt_mock: MqttMockHAClient,
-    device_registry: dr.DeviceRegistry,
-    wheel_type: str,
-    spoiler_type: str,
-    model: str,
-) -> None:
-    """Test device model detail formatting."""
-    await _async_setup_entry(hass)
-
-    async_fire_mqtt_message(hass, "teslamate/cars/1/model", "3")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/trim_badging", "Performance")
-    async_fire_mqtt_message(hass, "teslamate/cars/1/wheel_type", wheel_type)
-    async_fire_mqtt_message(hass, "teslamate/cars/1/spoiler_type", spoiler_type)
-    await hass.async_block_till_done()
-
-    device = device_registry.async_get_device(
-        identifiers={(DOMAIN, "teslamate/cars/1")}
-    )
-    assert device is not None
-    assert device.model == model
-
-
-@pytest.mark.parametrize(
-    ("payload", "state"),
-    [
-        pytest.param("true", STATE_OFF, id="healthy"),
-        pytest.param("false", STATE_ON, id="problem"),
-    ],
-)
-async def test_health_values(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient, payload: str, state: str
-) -> None:
-    """Test health value mapping."""
-    await _async_setup_entry(hass)
-
-    async_fire_mqtt_message(hass, "teslamate/cars/1/healthy", payload)
-    await hass.async_block_till_done()
-
-    assert hass.states.get("binary_sensor.roadrunner_health").state == state
-
-
-@pytest.mark.parametrize(
-    ("payload", "state"),
-    [
-        pytest.param("true", STATE_OFF, id="locked"),
-        pytest.param("false", STATE_ON, id="unlocked"),
-    ],
-)
-async def test_locked_values(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient, payload: str, state: str
-) -> None:
-    """Test locked value mapping."""
-    await _async_setup_entry(hass)
-
-    async_fire_mqtt_message(hass, "teslamate/cars/1/locked", payload)
-    await hass.async_block_till_done()
-
-    assert hass.states.get("binary_sensor.roadrunner_lock").state == state
 
 
 @pytest.mark.parametrize(
@@ -1389,9 +808,9 @@ async def test_center_display_state_values(
     hass: HomeAssistant, mqtt_mock: MqttMockHAClient, payload: str, state: str
 ) -> None:
     """Test center display state value mapping."""
-    await _async_setup_entry(hass)
+    await async_setup_teslamate_mqtt_entry(hass)
 
-    async_fire_mqtt_message(hass, "teslamate/cars/1/center_display_state", payload)
+    async_fire_teslamate_mqtt_message(hass, "center_display_state", payload)
     await hass.async_block_till_done()
 
     center_display_state = hass.states.get("sensor.roadrunner_center_display")
@@ -1403,10 +822,10 @@ async def test_center_display_state_undocumented_value(
     hass: HomeAssistant, mqtt_mock: MqttMockHAClient, caplog: pytest.LogCaptureFixture
 ) -> None:
     """Test undocumented center display state value."""
-    await _async_setup_entry(hass)
+    await async_setup_teslamate_mqtt_entry(hass)
     caplog.set_level(logging.WARNING)
 
-    async_fire_mqtt_message(hass, "teslamate/cars/1/center_display_state", "1")
+    async_fire_teslamate_mqtt_message(hass, "center_display_state", "1")
     await hass.async_block_till_done()
 
     center_display_state = hass.states.get("sensor.roadrunner_center_display")
@@ -1429,56 +848,13 @@ async def test_center_display_state_unexpected_value(
     payload: str,
 ) -> None:
     """Test unexpected center display state values."""
-    await _async_setup_entry(hass)
+    await async_setup_teslamate_mqtt_entry(hass)
     caplog.set_level(logging.WARNING)
 
-    async_fire_mqtt_message(hass, "teslamate/cars/1/center_display_state", payload)
+    async_fire_teslamate_mqtt_message(hass, "center_display_state", payload)
     await hass.async_block_till_done()
 
     center_display_state = hass.states.get("sensor.roadrunner_center_display")
     assert center_display_state.state == STATE_UNKNOWN
     assert center_display_state.attributes["raw_value"] == payload
     assert f"Unexpected center display state value: {payload}" in caplog.text
-
-
-async def test_setup_fails_without_display_name(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient
-) -> None:
-    """Test setup is retried when the display name topic is not retained."""
-    entry = MockConfigEntry(
-        domain=DOMAIN,
-        title="Roadrunner",
-        data={CONF_TOPIC_ROOT: "teslamate/cars/1"},
-        unique_id="teslamate/cars/1",
-    )
-    entry.add_to_hass(hass)
-
-    with patch("custom_components.teslamate_mqtt.DISPLAY_NAME_TIMEOUT", 0):
-        with patch(
-            "custom_components.teslamate_mqtt.mqtt.async_on_subscribe_done",
-            side_effect=_async_on_subscribe_done,
-        ):
-            setup_task = hass.async_create_task(
-                hass.config_entries.async_setup(entry.entry_id)
-            )
-            await asyncio.sleep(0)
-        assert not await setup_task
-
-
-async def test_setup_retries_when_mqtt_disconnected(
-    hass: HomeAssistant, mqtt_mock: MqttMockHAClient
-) -> None:
-    """Test setup is retried when the MQTT client is not connected."""
-    entry = MockConfigEntry(
-        domain=DOMAIN,
-        title="Roadrunner",
-        data={CONF_TOPIC_ROOT: "teslamate/cars/1"},
-        unique_id="teslamate/cars/1",
-    )
-    entry.add_to_hass(hass)
-
-    with patch(
-        "custom_components.teslamate_mqtt.mqtt.is_connected",
-        return_value=False,
-    ):
-        assert not await hass.config_entries.async_setup(entry.entry_id)
