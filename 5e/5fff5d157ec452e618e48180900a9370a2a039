@@ -1,0 +1,26 @@
+pyproject.toml
+  s_3934d56ddf4af5::t_97b44ff6713ca7 254
+  s_3934d56ddf4af5::t_21ae9ec48ba38d 23,29,36,50,61-62,66,99-100,121,123,229,245
+.strict-typing
+  s_3934d56ddf4af5::t_21ae9ec48ba38d 1-8
+.gitignore
+  s_3934d56ddf4af5::t_72575c33be6bc9 9
+mypy.ini
+  s_3934d56ddf4af5::t_21ae9ec48ba38d 1,7,12,46-56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "5e5fff5d157ec452e618e48180900a9370a2a039",
+  "prompts": {},
+  "sessions": {
+    "s_3934d56ddf4af5": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019eb3ed-f528-7492-902a-8df8c3015dc7",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Ben Hale <nebhale@nebhale.com>"
+    }
+  }
+}
