@@ -1,0 +1,33 @@
+tests/test_init.py
+  s_a70c56bed93aa5::t_f6705b99a5b593 1-152
+tests/common.py
+  s_a70c56bed93aa5::t_26bdc45e39eda0 76-78
+  s_a70c56bed93aa5::t_35fb305840c01f 90,93
+  s_a70c56bed93aa5::t_0e3c37950d6acd 1-75,79-89,91-92
+tests/test_binary_sensor.py
+  s_a70c56bed93aa5::t_7fc746e1e1b7e0 4-11
+  s_a70c56bed93aa5::t_e277a4309c335f 1-3,12-437
+tests/test_sensor.py
+  s_a70c56bed93aa5::t_121d1825833316 1,27-28,31-34,38,43-44,108-147,729,746,748,765,767,785,787,811,813,825,828,851,854
+tests/test_update.py
+  s_a70c56bed93aa5::t_afe9a2801309c7 1-42
+tests/test_device_tracker.py
+  s_a70c56bed93aa5::t_4715153601f22f 1-2,10-43
+  s_a70c56bed93aa5::t_7fc746e1e1b7e0 3-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "6f75d046d7c981ce254070d6508eec0f44d06788",
+  "prompts": {},
+  "sessions": {
+    "s_a70c56bed93aa5": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019eaeca-f91c-7cc2-a717-d6605c141b9a",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Ben Hale <nebhale@nebhale.com>"
+    }
+  }
+}
