@@ -1,0 +1,21 @@
+.github/workflows/validate.yml
+  s_3934d56ddf4af5::t_7ad480b10f7552 20-28
+custom_components/teslamate_mqtt/manifest.json
+  s_3934d56ddf4af5::t_2ac33017c7ac56 16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "4ac4adbed1585f5955a78fe0009a3ce614b1e70a",
+  "prompts": {},
+  "sessions": {
+    "s_3934d56ddf4af5": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019eb3ed-f528-7492-902a-8df8c3015dc7",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Ben Hale <nebhale@nebhale.com>"
+    }
+  }
+}
