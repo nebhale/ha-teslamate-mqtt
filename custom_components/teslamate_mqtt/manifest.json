@@ -1,7 +1,6 @@
 {
   "domain": "teslamate_mqtt",
   "name": "TeslaMate MQTT",
-  "version": "1.0.0",
   "codeowners": ["@nebhale"],
   "config_flow": true,
   "dependencies": ["mqtt"],
@@ -14,5 +13,6 @@
   "quality_scale": "bronze",
   "requirements": [],
   "ssdp": [],
+  "version": "1.0.0",
   "zeroconf": []
 }
