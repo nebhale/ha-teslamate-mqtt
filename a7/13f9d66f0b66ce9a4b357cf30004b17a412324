@@ -1,0 +1,19 @@
+pyproject.toml
+  s_b11e7247f4ce3e::t_4548ad8fe531d9 6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "a713f9d66f0b66ce9a4b357cf30004b17a412324",
+  "prompts": {},
+  "sessions": {
+    "s_b11e7247f4ce3e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ee513-1998-7091-b470-48066fb8f400",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Ben Hale <nebhale@nebhale.com>"
+    }
+  }
+}
