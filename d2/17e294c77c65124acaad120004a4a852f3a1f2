@@ -1,0 +1,19 @@
+.github/workflows/validate.yml
+  s_bb0d9b53fc81e3::t_48110627bb7a20 4-6,8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "d217e294c77c65124acaad120004a4a852f3a1f2",
+  "prompts": {},
+  "sessions": {
+    "s_bb0d9b53fc81e3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019ee519-56ba-7cf1-9b79-b091d574d9f5",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Ben Hale <nebhale@nebhale.com>"
+    }
+  }
+}
