@@ -20,7 +20,7 @@ include = ["custom_components*"]
 exclude = ["tests*"]
 
 [tool.ruff]
-required-version = ">=0.15.15"
+required-version = ">=0.16.0"
 
 [tool.ruff.lint]
 select = [
@@ -111,6 +111,7 @@ ignore = [
     "PLR0912", # Too many branches ({branches} > {max_branches})
     "PLR0913", # Too many arguments to function call ({c_args} > {max_args})
     "PLR0915", # Too many statements ({statements} > {max_statements})
+    "PLR0917", # Too many positional arguments defined for a function ({p_args} > {max_args})
     "PLR2004", # Magic value used in comparison, consider replacing {value} with a constant variable
     "PLW0108", # Unnecessary lambda wrapping a function call; can often be replaced by the function itself
     "PLW1641", # __eq__ without __hash__
