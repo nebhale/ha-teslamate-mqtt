@@ -732,6 +732,60 @@ async def test_sensors(
     assert hass.states.get("sensor.roadrunner_energy_added").state == "1.1"
 
 
+async def test_new_sensors(
+    hass: HomeAssistant,
+    mqtt_mock: MqttMockHAClient,
+    entity_registry: er.EntityRegistry,
+) -> None:
+    """Test sensors added for new TeslaMate MQTT topics."""
+    await async_setup_teslamate_mqtt_entry(hass)
+
+    percentage_entities = {
+        "sensor.roadrunner_software_update_download": (
+            "download_perc",
+            "100",
+            "mdi:download",
+        ),
+        "sensor.roadrunner_software_update_installation": (
+            "install_perc",
+            "42",
+            "mdi:update",
+        ),
+        "sensor.roadrunner_sunroof_open": (
+            "sun_roof_percent_open",
+            "80",
+            "mdi:car-convertible",
+        ),
+    }
+    for entity_id in (*percentage_entities, "sensor.roadrunner_sunroof_state"):
+        assert hass.states.get(entity_id).state == STATE_UNKNOWN
+
+    async_fire_teslamate_mqtt_message(hass, "download_perc", "100")
+    async_fire_teslamate_mqtt_message(hass, "install_perc", "42")
+    async_fire_teslamate_mqtt_message(hass, "sun_roof_percent_open", "80")
+    async_fire_teslamate_mqtt_message(hass, "sun_roof_state", "partially_open")
+    await hass.async_block_till_done()
+
+    for entity_id, (topic, state, icon) in percentage_entities.items():
+        percentage_state = hass.states.get(entity_id)
+        assert percentage_state.state == state
+        assert percentage_state.attributes[ATTR_STATE_CLASS] == (
+            SensorStateClass.MEASUREMENT
+        )
+        assert percentage_state.attributes[ATTR_UNIT_OF_MEASUREMENT] == PERCENTAGE
+        assert percentage_state.attributes[ATTR_ICON] == icon
+        registry_entry = entity_registry.async_get(entity_id)
+        assert registry_entry.unique_id == f"teslamate/cars/1/{topic}"
+        assert registry_entry.options["sensor"]["suggested_display_precision"] == 0
+
+    sunroof_state = hass.states.get("sensor.roadrunner_sunroof_state")
+    assert sunroof_state.state == "Partially Open"
+    assert sunroof_state.attributes[ATTR_ICON] == "mdi:car-convertible"
+    assert entity_registry.async_get("sensor.roadrunner_sunroof_state").unique_id == (
+        "teslamate/cars/1/sun_roof_state"
+    )
+
+
 @pytest.mark.parametrize(
     ("payload", "state"),
     [

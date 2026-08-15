@@ -19,8 +19,11 @@
 | `climate_keeper_mode` | `Climate Keeper` |  |  | `mdi:air-conditioner` |  | Preserve the TeslaMate climate keeper mode as a human-readable string, but title case the value. | |
 | `display_name` | `Display Name` |  |  | `mdi:form-textbox` |  |  | Used as the Home Assistant config entry title and device name, so it is not exposed as a standalone sensor. |
 | `doors_open` | `Doors` | `door` |  | `mdi:car-door` |  |  |  |
+| `download_perc` | `Software Update Download` |  | `measurement` | `mdi:download` | `%` | Use zero digits of precision |  |
 | `driver_front_door_open` | `Door (Driver Front)` | `door` |  | `mdi:car-door` |  |  |  |
+| `driver_front_window_open` | `Window (Driver Front)` | `window` |  | `mdi:car-door` |  |  |  |
 | `driver_rear_door_open` | `Door (Driver Rear)` | `door` |  | `mdi:car-door` |  |  |  |
+| `driver_rear_window_open` | `Window (Driver Rear)` | `window` |  | `mdi:car-door` |  |  |  |
 | `elevation` | `Elevation` | `distance` | `measurement` | `mdi:image-filter-hdr` | `m` | Use zero digits of precision |  |
 | `est_battery_range_km` | `Range (Estimated)` | `distance` | `measurement` | `mdi:map-marker-distance` | `km` | Use zero digits of precision | |
 | `exterior_color` | `Exterior Color` |  |  | `mdi:format-color-fill` |  | Preserve the TeslaMate exterior color as a human-readable string, but split camel-case words into space-separated words. For example, `DeepBlue` should display as `Deep Blue`. |  |
@@ -30,6 +33,7 @@
 | `healthy` | `Health` | `problem` |  | `mdi:heart-pulse` |  | Treat the TeslaMate healthy value as a Home Assistant problem binary sensor. Because TeslaMate publishes `true` when there are no problems and `false` when there are problems, invert the value so `true` reports off/no problem and `false` reports on/problem. |  |
 | `ideal_battery_range_km` | `Range (Ideal)` | `distance` | `measurement` | `mdi:map-marker-distance` | `km` | Use zero digits of precision | |
 | `inside_temp` | `Temperature (Inside)` | `temperature` | `measurement` |  | `°C` | Use one digit of precision |  |
+| `install_perc` | `Software Update Installation` |  | `measurement` | `mdi:update` | `%` | Use zero digits of precision |  |
 | `is_climate_on` | `Climate` | `running` |  | `mdi:air-conditioner` |  |  |  |
 | `is_preconditioning` | `Preconditioning` | `running` |  | `mdi:air-conditioner` |  |  |  |
 | `is_user_present` | `Occupancy` | `occupancy` |  | `mdi:account` |  |  |  |
@@ -41,17 +45,23 @@
 | `odometer` | `Odometer` | `distance` | `total_increasing` | `mdi:counter` | `km` | Use zero digits of precision |  |
 | `outside_temp` | `Temperature (Outside)` | `temperature` | `measurement` |  | `°C` | Use one digit of precision |  |
 | `passenger_front_door_open` | `Door (Passenger Front)` | `door` |  | `mdi:car-door` |  |  |  |
+| `passenger_front_window_open` | `Window (Passenger Front)` | `window` |  | `mdi:car-door` |  |  |  |
 | `passenger_rear_door_open` | `Door (Passenger Rear)` | `door` |  | `mdi:car-door` |  |  |  |
+| `passenger_rear_window_open` | `Window (Passenger Rear)` | `window` |  | `mdi:car-door` |  |  |  |
 | `plugged_in` | `Plug` | `plug` |  |  |  |  |  |
 | `power` | `Power` | `power` | `measurement` |  | `kW` | Use zero digits of precision |  |
 | `rated_battery_range_km` | `Range (Rated)` | `distance` | `measurement` | `mdi:map-marker-distance` | `km` | Use zero digits of precision | |
 | `scheduled_charging_start_time` | `Charging Start Time` | `timestamp` |  |  |  | Parse the value as a timestamp and use it as-is. |  |
 | `sentry_mode` | `Sentry Mode` | `running` |  | `mdi:cctv` |  |  |  |
+| `service_mode` | `Service Mode` |  |  | `mdi:wrench` |  |  |  |
 | `shift_state` | `Shift State` |  |  | `mdi:car-shift-pattern` |  |  |  |
 | `since` | `Last Seen` | `timestamp` |  | `mdi:timer-sand` |  | Parse the value as a timestamp and use it as-is. |  |
 | `speed` | `Speed` | `speed` | `measurement` | `mdi:speedometer` | `km/h` | Use zero digits of precision |  |
 | `spoiler_type` | `Spoiler Type` |  |  | `mdi:weather-windy` |  | Split camel-case words into space-separated words. Append the formatted value to the Home Assistant device model as a parenthetical detail suffixed with `Spoiler`, unless the value is `none`. | Used as part of the Home Assistant device model, so it is not exposed as a standalone sensor. |
 | `state` | `State` |  |  | `mdi:car-connected` |  | Preserve the TeslaMate vehicle state as a human-readable string, but title case the value. |  |
+| `sun_roof_installed` | `Sunroof Installed` |  |  | `mdi:car-convertible` |  | When the value is `true`, append `Sunroof` to the Home Assistant device model details. | Also exposed as a diagnostic binary sensor. |
+| `sun_roof_percent_open` | `Sunroof Open` |  | `measurement` | `mdi:car-convertible` | `%` | Use zero digits of precision |  |
+| `sun_roof_state` | `Sunroof State` |  |  | `mdi:car-convertible` |  | Preserve the TeslaMate sunroof state as a human-readable string by replacing underscores with spaces and title casing the value. |  |
 | `time_to_full_charge` | `Charging Time Remaining` | `duration` | `measurement` | `mdi:timer` | `h` |  |  |
 | `tpms_pressure_fl` | `Tire Pressure (Front Left)` | `pressure` | `measurement` | `mdi:gauge` | `bar` | Use one digit of precision |  |
 | `tpms_pressure_fr` | `Tire Pressure (Front Right)` | `pressure` | `measurement` | `mdi:gauge` | `bar` | Use one digit of precision |  |

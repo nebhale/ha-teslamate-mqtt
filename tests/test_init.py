@@ -52,6 +52,7 @@ async def test_device_info(
     async_fire_teslamate_mqtt_message(hass, "trim_badging", "Performance")
     async_fire_teslamate_mqtt_message(hass, "wheel_type", "SonicCarbonTwinTurbine19")
     async_fire_teslamate_mqtt_message(hass, "spoiler_type", "CarbonFiber")
+    async_fire_teslamate_mqtt_message(hass, "sun_roof_installed", "true")
     await hass.async_block_till_done()
 
     device = device_registry.async_get_device(
@@ -62,26 +63,28 @@ async def test_device_info(
     assert device.name == "Roadrunner"
     assert device.model == (
         'Model 3 Performance (Sonic Carbon Twin Turbine 19" Wheels, '
-        "Carbon Fiber Spoiler)"
+        "Carbon Fiber Spoiler, Sunroof)"
     )
     assert device.sw_version == "2026.14.1"
 
 
 @pytest.mark.parametrize(
-    ("wheel_type", "spoiler_type", "model"),
+    ("wheel_type", "spoiler_type", "sun_roof_installed", "model"),
     [
         pytest.param(
             "SonicCarbonTwinTurbine19",
             "CarbonFiber",
+            "true",
             'Model 3 Performance (Sonic Carbon Twin Turbine 19" Wheels, '
-            "Carbon Fiber Spoiler)",
-            id="wheel_and_spoiler",
+            "Carbon Fiber Spoiler, Sunroof)",
+            id="wheel_spoiler_and_sunroof",
         ),
         pytest.param(
             "Slipstream",
             "none",
+            "false",
             "Model 3 Performance (Slipstream Wheels)",
-            id="wheel_without_spoiler",
+            id="wheel_without_spoiler_or_sunroof",
         ),
     ],
 )
@@ -91,6 +94,7 @@ async def test_model_name_details(
     device_registry: dr.DeviceRegistry,
     wheel_type: str,
     spoiler_type: str,
+    sun_roof_installed: str,
     model: str,
 ) -> None:
     """Test device model detail formatting."""
@@ -100,6 +104,7 @@ async def test_model_name_details(
     async_fire_teslamate_mqtt_message(hass, "trim_badging", "Performance")
     async_fire_teslamate_mqtt_message(hass, "wheel_type", wheel_type)
     async_fire_teslamate_mqtt_message(hass, "spoiler_type", spoiler_type)
+    async_fire_teslamate_mqtt_message(hass, "sun_roof_installed", sun_roof_installed)
     await hass.async_block_till_done()
 
     device = device_registry.async_get_device(
