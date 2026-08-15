@@ -14,7 +14,9 @@ from .const import (
     TOPIC_CHARGING_STATE,
     TOPIC_DOORS_OPEN,
     TOPIC_DRIVER_FRONT_DOOR_OPEN,
+    TOPIC_DRIVER_FRONT_WINDOW_OPEN,
     TOPIC_DRIVER_REAR_DOOR_OPEN,
+    TOPIC_DRIVER_REAR_WINDOW_OPEN,
     TOPIC_FRUNK_OPEN,
     TOPIC_HEALTHY,
     TOPIC_IS_CLIMATE_ON,
@@ -22,9 +24,13 @@ from .const import (
     TOPIC_IS_USER_PRESENT,
     TOPIC_LOCKED,
     TOPIC_PASSENGER_FRONT_DOOR_OPEN,
+    TOPIC_PASSENGER_FRONT_WINDOW_OPEN,
     TOPIC_PASSENGER_REAR_DOOR_OPEN,
+    TOPIC_PASSENGER_REAR_WINDOW_OPEN,
     TOPIC_PLUGGED_IN,
     TOPIC_SENTRY_MODE,
+    TOPIC_SERVICE_MODE,
+    TOPIC_SUN_ROOF_INSTALLED,
     TOPIC_TPMS_SOFT_WARNING_FL,
     TOPIC_TPMS_SOFT_WARNING_FR,
     TOPIC_TPMS_SOFT_WARNING_RL,
@@ -48,8 +54,12 @@ async def async_setup_entry(
             TeslaMateDoorsOpenBinarySensor(entry.runtime_data),
             TeslaMateDriverFrontDoorOpenBinarySensor(entry.runtime_data),
             TeslaMateDriverRearDoorOpenBinarySensor(entry.runtime_data),
+            TeslaMateDriverFrontWindowOpenBinarySensor(entry.runtime_data),
+            TeslaMateDriverRearWindowOpenBinarySensor(entry.runtime_data),
             TeslaMatePassengerFrontDoorOpenBinarySensor(entry.runtime_data),
             TeslaMatePassengerRearDoorOpenBinarySensor(entry.runtime_data),
+            TeslaMatePassengerFrontWindowOpenBinarySensor(entry.runtime_data),
+            TeslaMatePassengerRearWindowOpenBinarySensor(entry.runtime_data),
             TeslaMateFrunkOpenBinarySensor(entry.runtime_data),
             TeslaMateHealthyBinarySensor(entry.runtime_data),
             TeslaMateClimateOnBinarySensor(entry.runtime_data),
@@ -57,7 +67,9 @@ async def async_setup_entry(
             TeslaMateUserPresentBinarySensor(entry.runtime_data),
             TeslaMateLockedBinarySensor(entry.runtime_data),
             TeslaMatePluggedInBinarySensor(entry.runtime_data),
+            TeslaMateServiceModeBinarySensor(entry.runtime_data),
             TeslaMateSentryModeBinarySensor(entry.runtime_data),
+            TeslaMateSunRoofInstalledBinarySensor(entry.runtime_data),
             TeslaMateTireSoftWarningFrontLeftBinarySensor(entry.runtime_data),
             TeslaMateTireSoftWarningFrontRightBinarySensor(entry.runtime_data),
             TeslaMateTireSoftWarningRearLeftBinarySensor(entry.runtime_data),
@@ -196,16 +208,61 @@ class TeslaMateTrunkOpenBinarySensor(TeslaMateDoorOpenBinarySensor):
         super().__init__(data, TOPIC_TRUNK_OPEN)
 
 
-class TeslaMateWindowsOpenBinarySensor(TeslaMateBooleanBinarySensor):
-    """Representation of whether any Tesla window is open."""
+class TeslaMateWindowOpenBinarySensor(TeslaMateBooleanBinarySensor):
+    """Base class for Tesla window binary sensors."""
 
     _attr_device_class = BinarySensorDeviceClass.WINDOW
     _attr_icon = "mdi:car-door"
+
+
+class TeslaMateWindowsOpenBinarySensor(TeslaMateWindowOpenBinarySensor):
+    """Representation of whether any Tesla window is open."""
+
     _attr_name = "Windows"
 
     def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_WINDOWS_OPEN)
+
+
+class TeslaMateDriverFrontWindowOpenBinarySensor(TeslaMateWindowOpenBinarySensor):
+    """Representation of whether the Tesla driver front window is open."""
+
+    _attr_name = "Window (Driver Front)"
+
+    def __init__(self, data: TeslaMateMqttData) -> None:
+        """Initialize the binary sensor."""
+        super().__init__(data, TOPIC_DRIVER_FRONT_WINDOW_OPEN)
+
+
+class TeslaMateDriverRearWindowOpenBinarySensor(TeslaMateWindowOpenBinarySensor):
+    """Representation of whether the Tesla driver rear window is open."""
+
+    _attr_name = "Window (Driver Rear)"
+
+    def __init__(self, data: TeslaMateMqttData) -> None:
+        """Initialize the binary sensor."""
+        super().__init__(data, TOPIC_DRIVER_REAR_WINDOW_OPEN)
+
+
+class TeslaMatePassengerFrontWindowOpenBinarySensor(TeslaMateWindowOpenBinarySensor):
+    """Representation of whether the Tesla passenger front window is open."""
+
+    _attr_name = "Window (Passenger Front)"
+
+    def __init__(self, data: TeslaMateMqttData) -> None:
+        """Initialize the binary sensor."""
+        super().__init__(data, TOPIC_PASSENGER_FRONT_WINDOW_OPEN)
+
+
+class TeslaMatePassengerRearWindowOpenBinarySensor(TeslaMateWindowOpenBinarySensor):
+    """Representation of whether the Tesla passenger rear window is open."""
+
+    _attr_name = "Window (Passenger Rear)"
+
+    def __init__(self, data: TeslaMateMqttData) -> None:
+        """Initialize the binary sensor."""
+        super().__init__(data, TOPIC_PASSENGER_REAR_WINDOW_OPEN)
 
 
 class TeslaMateHealthyBinarySensor(TeslaMateMqttEntity, BinarySensorEntity):
@@ -293,6 +350,17 @@ class TeslaMatePluggedInBinarySensor(TeslaMateBooleanBinarySensor):
         super().__init__(data, TOPIC_PLUGGED_IN)
 
 
+class TeslaMateServiceModeBinarySensor(TeslaMateBooleanBinarySensor):
+    """Representation of whether Service Mode is active."""
+
+    _attr_icon = "mdi:wrench"
+    _attr_name = "Service Mode"
+
+    def __init__(self, data: TeslaMateMqttData) -> None:
+        """Initialize the binary sensor."""
+        super().__init__(data, TOPIC_SERVICE_MODE)
+
+
 class TeslaMateSentryModeBinarySensor(TeslaMateBooleanBinarySensor):
     """Representation of whether Sentry Mode is active."""
 
@@ -303,6 +371,18 @@ class TeslaMateSentryModeBinarySensor(TeslaMateBooleanBinarySensor):
     def __init__(self, data: TeslaMateMqttData) -> None:
         """Initialize the binary sensor."""
         super().__init__(data, TOPIC_SENTRY_MODE)
+
+
+class TeslaMateSunRoofInstalledBinarySensor(TeslaMateBooleanBinarySensor):
+    """Representation of whether the Tesla has a sunroof installed."""
+
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_icon = "mdi:car-convertible"
+    _attr_name = "Sunroof Installed"
+
+    def __init__(self, data: TeslaMateMqttData) -> None:
+        """Initialize the binary sensor."""
+        super().__init__(data, TOPIC_SUN_ROOF_INSTALLED)
 
 
 class TeslaMateTireSoftWarningBinarySensor(TeslaMateBooleanBinarySensor):

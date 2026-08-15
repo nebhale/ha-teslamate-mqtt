@@ -20,6 +20,7 @@ from .const import (
     TOPIC_DISPLAY_NAME,
     TOPIC_MODEL,
     TOPIC_SPOILER_TYPE,
+    TOPIC_SUN_ROOF_INSTALLED,
     TOPIC_TRIM_BADGING,
     TOPIC_VERSION,
     TOPIC_WHEEL_TYPE,
@@ -144,6 +145,7 @@ class TeslaMateMqttData:
             TOPIC_DISPLAY_NAME,
             TOPIC_MODEL,
             TOPIC_SPOILER_TYPE,
+            TOPIC_SUN_ROOF_INSTALLED,
             TOPIC_TRIM_BADGING,
             TOPIC_VERSION,
             TOPIC_WHEEL_TYPE,
@@ -199,6 +201,10 @@ class TeslaMateMqttData:
             formatted_spoiler_type := _format_spoiler_type(spoiler_type)
         ):
             details.append(f"{formatted_spoiler_type} Spoiler")
+        if (sun_roof_installed := self.value(TOPIC_SUN_ROOF_INSTALLED)) and (
+            sun_roof_installed.lower() == "true"
+        ):
+            details.append("Sunroof")
 
         if details:
             return f"{model} ({', '.join(details)})"

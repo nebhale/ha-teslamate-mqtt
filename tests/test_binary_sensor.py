@@ -379,6 +379,81 @@ async def test_binary_sensors(
     assert hass.states.get("binary_sensor.roadrunner_doors").state == STATE_OFF
 
 
+async def test_new_binary_sensors(
+    hass: HomeAssistant,
+    mqtt_mock: MqttMockHAClient,
+    entity_registry: er.EntityRegistry,
+) -> None:
+    """Test binary sensors added for new TeslaMate MQTT topics."""
+    await async_setup_teslamate_mqtt_entry(hass)
+
+    entity_ids = [
+        "binary_sensor.roadrunner_window_driver_front",
+        "binary_sensor.roadrunner_window_driver_rear",
+        "binary_sensor.roadrunner_window_passenger_front",
+        "binary_sensor.roadrunner_window_passenger_rear",
+        "binary_sensor.roadrunner_service_mode",
+        "binary_sensor.roadrunner_sunroof_installed",
+    ]
+    for entity_id in entity_ids:
+        assert hass.states.get(entity_id).state == STATE_UNKNOWN
+
+    async_fire_teslamate_mqtt_message(hass, "driver_front_window_open", "true")
+    async_fire_teslamate_mqtt_message(hass, "driver_rear_window_open", "false")
+    async_fire_teslamate_mqtt_message(hass, "passenger_front_window_open", "false")
+    async_fire_teslamate_mqtt_message(hass, "passenger_rear_window_open", "true")
+    async_fire_teslamate_mqtt_message(hass, "service_mode", "true")
+    async_fire_teslamate_mqtt_message(hass, "sun_roof_installed", "true")
+    await hass.async_block_till_done()
+
+    window_entities = {
+        "binary_sensor.roadrunner_window_driver_front": (
+            STATE_ON,
+            "driver_front_window_open",
+        ),
+        "binary_sensor.roadrunner_window_driver_rear": (
+            STATE_OFF,
+            "driver_rear_window_open",
+        ),
+        "binary_sensor.roadrunner_window_passenger_front": (
+            STATE_OFF,
+            "passenger_front_window_open",
+        ),
+        "binary_sensor.roadrunner_window_passenger_rear": (
+            STATE_ON,
+            "passenger_rear_window_open",
+        ),
+    }
+    for entity_id, (state, topic) in window_entities.items():
+        window_state = hass.states.get(entity_id)
+        assert window_state.state == state
+        assert (
+            window_state.attributes[ATTR_DEVICE_CLASS] == BinarySensorDeviceClass.WINDOW
+        )
+        assert window_state.attributes[ATTR_ICON] == "mdi:car-door"
+        assert entity_registry.async_get(entity_id).unique_id == (
+            f"teslamate/cars/1/{topic}"
+        )
+
+    service_mode = hass.states.get("binary_sensor.roadrunner_service_mode")
+    assert service_mode.state == STATE_ON
+    assert ATTR_DEVICE_CLASS not in service_mode.attributes
+    assert service_mode.attributes[ATTR_ICON] == "mdi:wrench"
+    assert entity_registry.async_get(
+        "binary_sensor.roadrunner_service_mode"
+    ).unique_id == ("teslamate/cars/1/service_mode")
+
+    sunroof_installed = hass.states.get("binary_sensor.roadrunner_sunroof_installed")
+    assert sunroof_installed.state == STATE_ON
+    assert ATTR_DEVICE_CLASS not in sunroof_installed.attributes
+    assert sunroof_installed.attributes[ATTR_ICON] == "mdi:car-convertible"
+    sunroof_registry_entry = entity_registry.async_get(
+        "binary_sensor.roadrunner_sunroof_installed"
+    )
+    assert sunroof_registry_entry.unique_id == "teslamate/cars/1/sun_roof_installed"
+    assert sunroof_registry_entry.entity_category == EntityCategory.DIAGNOSTIC
+
+
 @pytest.mark.parametrize(
     ("payload", "state"),
     [

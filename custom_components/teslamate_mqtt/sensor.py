@@ -40,6 +40,7 @@ from .const import (
     TOPIC_CHARGER_VOLTAGE,
     TOPIC_CHARGING_STATE,
     TOPIC_CLIMATE_KEEPER_MODE,
+    TOPIC_DOWNLOAD_PERC,
     TOPIC_ELEVATION,
     TOPIC_EST_BATTERY_RANGE_KM,
     TOPIC_EXTERIOR_COLOR,
@@ -47,6 +48,7 @@ from .const import (
     TOPIC_HEADING,
     TOPIC_IDEAL_BATTERY_RANGE_KM,
     TOPIC_INSIDE_TEMP,
+    TOPIC_INSTALL_PERC,
     TOPIC_ODOMETER,
     TOPIC_OUTSIDE_TEMP,
     TOPIC_POWER,
@@ -56,6 +58,8 @@ from .const import (
     TOPIC_SINCE,
     TOPIC_SPEED,
     TOPIC_STATE,
+    TOPIC_SUN_ROOF_PERCENT_OPEN,
+    TOPIC_SUN_ROOF_STATE,
     TOPIC_TIME_TO_FULL_CHARGE,
     TOPIC_TPMS_PRESSURE_FL,
     TOPIC_TPMS_PRESSURE_FR,
@@ -107,6 +111,7 @@ async def async_setup_entry(
             TeslaMateChargerVoltageSensor(entry.runtime_data),
             TeslaMateChargingStateSensor(entry.runtime_data),
             TeslaMateClimateKeeperModeSensor(entry.runtime_data),
+            TeslaMateDownloadPercentageSensor(entry.runtime_data),
             TeslaMateElevationSensor(entry.runtime_data),
             TeslaMateEstimatedBatteryRangeSensor(entry.runtime_data),
             TeslaMateExteriorColorSensor(entry.runtime_data),
@@ -114,6 +119,7 @@ async def async_setup_entry(
             TeslaMateHeadingSensor(entry.runtime_data),
             TeslaMateIdealBatteryRangeSensor(entry.runtime_data),
             TeslaMateInsideTemperatureSensor(entry.runtime_data),
+            TeslaMateInstallPercentageSensor(entry.runtime_data),
             TeslaMateOdometerSensor(entry.runtime_data),
             TeslaMateOutsideTemperatureSensor(entry.runtime_data),
             TeslaMatePowerSensor(entry.runtime_data),
@@ -123,6 +129,8 @@ async def async_setup_entry(
             TeslaMateSinceSensor(entry.runtime_data),
             TeslaMateSpeedSensor(entry.runtime_data),
             TeslaMateStateSensor(entry.runtime_data),
+            TeslaMateSunRoofPercentOpenSensor(entry.runtime_data),
+            TeslaMateSunRoofStateSensor(entry.runtime_data),
             TeslaMateTimeToFullChargeSensor(entry.runtime_data),
             TeslaMateTirePressureFrontLeftSensor(entry.runtime_data),
             TeslaMateTirePressureFrontRightSensor(entry.runtime_data),
@@ -213,6 +221,34 @@ class TeslaMateIntegerMeasurementSensor(TeslaMateMqttEntity, SensorEntity):
             return int(value)
         except ValueError:
             return None
+
+
+class TeslaMatePercentageSensor(TeslaMateIntegerMeasurementSensor):
+    """Base class for TeslaMate percentage sensors."""
+
+    _attr_native_unit_of_measurement = PERCENTAGE
+
+
+class TeslaMateDownloadPercentageSensor(TeslaMatePercentageSensor):
+    """Representation of Tesla software update download progress."""
+
+    _attr_icon = "mdi:download"
+    _attr_name = "Software Update Download"
+
+    def __init__(self, data: TeslaMateMqttData) -> None:
+        """Initialize the sensor."""
+        super().__init__(data, TOPIC_DOWNLOAD_PERC)
+
+
+class TeslaMateInstallPercentageSensor(TeslaMatePercentageSensor):
+    """Representation of Tesla software update installation progress."""
+
+    _attr_icon = "mdi:update"
+    _attr_name = "Software Update Installation"
+
+    def __init__(self, data: TeslaMateMqttData) -> None:
+        """Initialize the sensor."""
+        super().__init__(data, TOPIC_INSTALL_PERC)
 
 
 class TeslaMateFloatSensor(TeslaMateMqttEntity, SensorEntity):
@@ -575,6 +611,35 @@ class TeslaMateStateSensor(TeslaMateMqttEntity, SensorEntity):
         if (value := self.data.value(TOPIC_STATE)) is None:
             return None
         return value.title()
+
+
+class TeslaMateSunRoofPercentOpenSensor(TeslaMatePercentageSensor):
+    """Representation of how far the Tesla sunroof is open."""
+
+    _attr_icon = "mdi:car-convertible"
+    _attr_name = "Sunroof Open"
+
+    def __init__(self, data: TeslaMateMqttData) -> None:
+        """Initialize the sensor."""
+        super().__init__(data, TOPIC_SUN_ROOF_PERCENT_OPEN)
+
+
+class TeslaMateSunRoofStateSensor(TeslaMateMqttEntity, SensorEntity):
+    """Representation of the Tesla sunroof state."""
+
+    _attr_icon = "mdi:car-convertible"
+    _attr_name = "Sunroof State"
+
+    def __init__(self, data: TeslaMateMqttData) -> None:
+        """Initialize the sensor."""
+        super().__init__(data, TOPIC_SUN_ROOF_STATE)
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the sunroof state."""
+        if (value := self.data.value(TOPIC_SUN_ROOF_STATE)) is None:
+            return None
+        return value.replace("_", " ").title()
 
 
 class TeslaMateTimeToFullChargeSensor(TeslaMateFloatSensor):
