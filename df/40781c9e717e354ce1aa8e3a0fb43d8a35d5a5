@@ -1,0 +1,39 @@
+tests/test_sensor.py
+  s_4c36426920f462::t_b5dc99fbf8ba50 759
+teslamate_mqtt_topics.md
+  s_4c36426920f462::t_b5dc99fbf8ba50 63
+custom_components/teslamate_mqtt/__init__.py
+  s_4c36426920f462::t_b5dc99fbf8ba50 16-20,271-284
+  s_4c36426920f462::t_d4a1777115c936 285-287
+  s_4c36426920f462::t_da0f102d8839cf 288
+tests/test_init.py
+  s_4c36426920f462::t_b5dc99fbf8ba50 11-16,25-45
+  s_4c36426920f462::t_67469bfffb2afb 7
+  s_81615de9bf95d3::t_0607bcff25a508 46-47
+custom_components/teslamate_mqtt/config_flow.py
+  s_4c36426920f462::t_b5dc99fbf8ba50 79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "df40781c9e717e354ce1aa8e3a0fb43d8a35d5a5",
+  "prompts": {},
+  "sessions": {
+    "s_4c36426920f462": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00b08-1d32-7e61-bbae-57d26cfec685",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ben Hale <nebhale@nebhale.com>"
+    },
+    "s_81615de9bf95d3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00ab8-6524-7711-a340-9d9e3bcf1a58",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ben Hale <nebhale@nebhale.com>"
+    }
+  }
+}
