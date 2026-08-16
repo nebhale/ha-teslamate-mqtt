@@ -4,6 +4,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity import Entity
 
 from . import TeslaMateMqttData
+from .const import TOPIC_ACTIVE_ROUTE
 
 
 class TeslaMateMqttEntity(Entity):
@@ -27,3 +28,27 @@ class TeslaMateMqttEntity(Entity):
         """Call when entity is added."""
         await super().async_added_to_hass()
         self.async_on_remove(self.data.async_add_listener(self.async_write_ha_state))
+
+
+class TeslaMateActiveRouteEntity(TeslaMateMqttEntity):
+    """Base entity derived from the TeslaMate active route JSON topic."""
+
+    @property
+    def _active_route(self) -> dict[str, object] | None:
+        """Return the active route when one is available."""
+        if (route := self.data.json_value(TOPIC_ACTIVE_ROUTE)) is None:
+            return None
+        if route.get("error"):
+            return None
+        return route
+
+    @property
+    def available(self) -> bool:
+        """Return whether an active route is available."""
+        return self._active_route is not None
+
+    def active_route_value(self, key: str) -> object | None:
+        """Return a value from the active route."""
+        if (route := self._active_route) is None:
+            return None
+        return route.get(key)

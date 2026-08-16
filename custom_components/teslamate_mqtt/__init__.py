@@ -2,8 +2,10 @@
 
 import asyncio
 from collections.abc import Callable
+import json
 import logging
 import re
+from typing import cast
 
 from homeassistant.components import mqtt
 from homeassistant.components.mqtt import ReceiveMessage
@@ -29,6 +31,7 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 DISPLAY_NAME_TIMEOUT = 2
+MODELS_WITH_PREFIX = {"3", "S", "X", "Y"}
 SUBSCRIBE_DONE_TIMEOUT = 10
 
 _PLATFORMS: list[Platform] = [
@@ -51,10 +54,19 @@ def _split_camel_case(value: str) -> str:
 
 def _format_wheel_type(value: str) -> str:
     """Format a compact TeslaMate wheel type."""
-    if (match := re.fullmatch(r"(?P<name>[A-Za-z]+)(?P<size>\d+)", value)) is None:
+    if (
+        match := re.fullmatch(
+            r"(?P<name>[A-Za-z]+)(?P<size>\d+)(?P<suffix>[A-Za-z]*)", value
+        )
+    ) is None:
         return _split_camel_case(value)
 
-    return f'{_split_camel_case(match["name"])} {match["size"]}"'
+    parts = [
+        _split_camel_case(match["name"]),
+        f'{match["size"]}"',
+        _split_camel_case(match["suffix"]),
+    ]
+    return " ".join(part for part in parts if part)
 
 
 def _format_spoiler_type(value: str) -> str | None:
@@ -62,6 +74,13 @@ def _format_spoiler_type(value: str) -> str | None:
     if value.lower() == "none":
         return None
     return _split_camel_case(value)
+
+
+def _format_model(value: str) -> str:
+    """Prefix legacy Tesla model codes."""
+    if value in MODELS_WITH_PREFIX:
+        return f"Model {value}"
+    return value
 
 
 class TeslaMateMqttData:
@@ -167,6 +186,18 @@ class TeslaMateMqttData:
         """Return the stored value for a TeslaMate topic key."""
         return self._values.get(key)
 
+    def json_value(self, key: str) -> dict[str, object] | None:
+        """Return a stored TeslaMate JSON object."""
+        if (value := self.value(key)) is None:
+            return None
+        try:
+            parsed: object = json.loads(value)
+        except json.JSONDecodeError:
+            return None
+        if not isinstance(parsed, dict):
+            return None
+        return cast(dict[str, object], parsed)
+
     @property
     def device_info(self) -> DeviceInfo:
         """Return device info for the car."""
@@ -193,7 +224,7 @@ class TeslaMateMqttData:
         if not parts:
             return None
 
-        model = f"Model {' '.join(parts)}"
+        model = " ".join([_format_model(parts[0]), *parts[1:]])
         details = []
         if wheel_type := self.value(TOPIC_WHEEL_TYPE):
             details.append(f"{_format_wheel_type(wheel_type)} Wheels")

@@ -114,6 +114,76 @@ async def test_model_name_details(
     assert device.model == model
 
 
+@pytest.mark.parametrize(
+    ("wheel_type", "formatted_wheel_type"),
+    [
+        pytest.param("AeroTurbine19", 'Aero Turbine 19"', id="camel_case_name"),
+        pytest.param("Pinwheel18", 'Pinwheel 18"', id="single_word_name"),
+        pytest.param(
+            "Slipstream19Carbon",
+            'Slipstream 19" Carbon',
+            id="optional_suffix",
+        ),
+    ],
+)
+async def test_wheel_type_formatting(
+    hass: HomeAssistant,
+    mqtt_mock: MqttMockHAClient,
+    device_registry: dr.DeviceRegistry,
+    wheel_type: str,
+    formatted_wheel_type: str,
+) -> None:
+    """Test wheel types match TeslaMate formatting."""
+    await async_setup_teslamate_mqtt_entry(hass)
+
+    async_fire_teslamate_mqtt_message(hass, "model", "3")
+    async_fire_teslamate_mqtt_message(hass, "wheel_type", wheel_type)
+    await hass.async_block_till_done()
+
+    device = device_registry.async_get_device(
+        identifiers={(DOMAIN, "teslamate/cars/1")}
+    )
+    assert device is not None
+    assert device.model == f"Model 3 ({formatted_wheel_type} Wheels)"
+
+
+@pytest.mark.parametrize(
+    ("model", "trim_badging", "formatted_model"),
+    [
+        pytest.param("S", "Plaid", "Model S Plaid", id="model_s"),
+        pytest.param("X", "Plaid", "Model X Plaid", id="model_x"),
+        pytest.param("3", "Performance", "Model 3 Performance", id="model_3"),
+        pytest.param("Y", "Performance", "Model Y Performance", id="model_y"),
+        pytest.param(
+            "Cybertruck",
+            "FOUNDATION",
+            "Cybertruck FOUNDATION",
+            id="cybertruck",
+        ),
+    ],
+)
+async def test_model_prefix_formatting(
+    hass: HomeAssistant,
+    mqtt_mock: MqttMockHAClient,
+    device_registry: dr.DeviceRegistry,
+    model: str,
+    trim_badging: str,
+    formatted_model: str,
+) -> None:
+    """Test only legacy Tesla model codes receive the Model prefix."""
+    await async_setup_teslamate_mqtt_entry(hass)
+
+    async_fire_teslamate_mqtt_message(hass, "model", model)
+    async_fire_teslamate_mqtt_message(hass, "trim_badging", trim_badging)
+    await hass.async_block_till_done()
+
+    device = device_registry.async_get_device(
+        identifiers={(DOMAIN, "teslamate/cars/1")}
+    )
+    assert device is not None
+    assert device.model == formatted_model
+
+
 async def test_setup_fails_without_display_name(
     hass: HomeAssistant, mqtt_mock: MqttMockHAClient
 ) -> None:

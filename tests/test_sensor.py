@@ -1,5 +1,6 @@
 """Tests for TeslaMate MQTT sensors."""
 
+import json
 import logging
 
 from homeassistant.components.sensor import (
@@ -13,7 +14,9 @@ from homeassistant.const import (
     ATTR_UNIT_OF_MEASUREMENT,
     DEGREE,
     PERCENTAGE,
+    STATE_UNAVAILABLE,
     STATE_UNKNOWN,
+    EntityCategory,
     UnitOfElectricCurrent,
     UnitOfElectricPotential,
     UnitOfEnergy,
@@ -26,6 +29,7 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
+from homeassistant.util.unit_system import METRIC_SYSTEM, US_CUSTOMARY_SYSTEM
 import pytest
 
 from tests.common import (
@@ -33,6 +37,52 @@ from tests.common import (
     async_setup_teslamate_mqtt_entry,
 )
 from tests.typing import MqttMockHAClient
+
+DISABLED_SENSOR_ENTITIES = {
+    "sensor.roadrunner_display_name": ("display_name", EntityCategory.DIAGNOSTIC),
+    "sensor.roadrunner_latitude": ("latitude", None),
+    "sensor.roadrunner_location": ("location", None),
+    "sensor.roadrunner_longitude": ("longitude", None),
+    "sensor.roadrunner_model": ("model", EntityCategory.DIAGNOSTIC),
+    "sensor.roadrunner_spoiler_type": (
+        "spoiler_type",
+        EntityCategory.DIAGNOSTIC,
+    ),
+    "sensor.roadrunner_sunroof_installed": (
+        "sun_roof_installed",
+        EntityCategory.DIAGNOSTIC,
+    ),
+    "sensor.roadrunner_trim_badging": (
+        "trim_badging",
+        EntityCategory.DIAGNOSTIC,
+    ),
+    "sensor.roadrunner_update_available": (
+        "update_available",
+        EntityCategory.DIAGNOSTIC,
+    ),
+    "sensor.roadrunner_update_version": (
+        "update_version",
+        EntityCategory.DIAGNOSTIC,
+    ),
+    "sensor.roadrunner_version": ("version", EntityCategory.DIAGNOSTIC),
+    "sensor.roadrunner_wheel_type": ("wheel_type", EntityCategory.DIAGNOSTIC),
+}
+
+ACTIVE_ROUTE_SENSOR_ENTITIES = {
+    "sensor.roadrunner_active_route_destination": "active_route_destination",
+    "sensor.roadrunner_active_route_energy_at_arrival": (
+        "active_route_energy_at_arrival"
+    ),
+    "sensor.roadrunner_active_route_distance_to_arrival": (
+        "active_route_distance_to_arrival"
+    ),
+    "sensor.roadrunner_active_route_minutes_to_arrival": (
+        "active_route_minutes_to_arrival"
+    ),
+    "sensor.roadrunner_active_route_traffic_minutes_delay": (
+        "active_route_traffic_minutes_delay"
+    ),
+}
 
 
 async def test_sensors(
@@ -643,7 +693,10 @@ async def test_sensors(
     assert entity_registry.async_get("sensor.roadrunner_climate_keeper").unique_id == (
         "teslamate/cars/1/climate_keeper_mode"
     )
-    assert entity_registry.async_get("sensor.roadrunner_display_name") is None
+    assert (
+        entity_registry.async_get("sensor.roadrunner_display_name").disabled_by
+        == er.RegistryEntryDisabler.INTEGRATION
+    )
     assert entity_registry.async_get("sensor.roadrunner_elevation").unique_id == (
         "teslamate/cars/1/elevation"
     )
@@ -692,11 +745,17 @@ async def test_sensors(
     assert entity_registry.async_get("sensor.roadrunner_speed").unique_id == (
         "teslamate/cars/1/speed"
     )
-    assert entity_registry.async_get("sensor.roadrunner_spoiler_type") is None
+    assert (
+        entity_registry.async_get("sensor.roadrunner_spoiler_type").disabled_by
+        == er.RegistryEntryDisabler.INTEGRATION
+    )
     assert entity_registry.async_get("sensor.roadrunner_state").unique_id == (
         "teslamate/cars/1/state"
     )
-    assert entity_registry.async_get("sensor.roadrunner_wheel_type") is None
+    assert (
+        entity_registry.async_get("sensor.roadrunner_wheel_type").disabled_by
+        == er.RegistryEntryDisabler.INTEGRATION
+    )
     assert (
         entity_registry.async_get("sensor.roadrunner_charging_time_left").unique_id
         == "teslamate/cars/1/time_to_full_charge"
@@ -723,13 +782,196 @@ async def test_sensors(
         ).unique_id
         == "teslamate/cars/1/tpms_pressure_rr"
     )
-    assert entity_registry.async_get("sensor.roadrunner_update_version") is None
-    assert entity_registry.async_get("sensor.roadrunner_version") is None
+    assert (
+        entity_registry.async_get("sensor.roadrunner_update_version").disabled_by
+        == er.RegistryEntryDisabler.INTEGRATION
+    )
+    assert (
+        entity_registry.async_get("sensor.roadrunner_version").disabled_by
+        == er.RegistryEntryDisabler.INTEGRATION
+    )
 
     async_fire_teslamate_mqtt_message(hass, "charge_energy_added", "1.1")
     await hass.async_block_till_done()
 
     assert hass.states.get("sensor.roadrunner_energy_added").state == "1.1"
+
+
+async def test_reused_topic_sensors_disabled_by_default(
+    hass: HomeAssistant,
+    mqtt_mock: MqttMockHAClient,
+    entity_registry: er.EntityRegistry,
+) -> None:
+    """Test sensors for reused MQTT topics are disabled by default."""
+    await async_setup_teslamate_mqtt_entry(hass)
+
+    for entity_id, (topic, entity_category) in DISABLED_SENSOR_ENTITIES.items():
+        assert hass.states.get(entity_id) is None
+        registry_entry = entity_registry.async_get(entity_id)
+        assert registry_entry.unique_id == f"teslamate/cars/1/{topic}"
+        assert registry_entry.disabled_by == er.RegistryEntryDisabler.INTEGRATION
+        assert registry_entry.entity_category == entity_category
+
+
+async def test_reused_topic_sensors_when_enabled(
+    hass: HomeAssistant,
+    mqtt_mock: MqttMockHAClient,
+    entity_registry: er.EntityRegistry,
+) -> None:
+    """Test values exposed by enabled sensors for reused MQTT topics."""
+    for entity_id, (topic, _) in DISABLED_SENSOR_ENTITIES.items():
+        entity_registry.async_get_or_create(
+            "sensor",
+            "teslamate_mqtt",
+            f"teslamate/cars/1/{topic}",
+            suggested_object_id=entity_id.removeprefix("sensor."),
+        )
+
+    await async_setup_teslamate_mqtt_entry(hass)
+
+    topic_values = {
+        "latitude": "37.5",
+        "location": "Home",
+        "longitude": "-122.25",
+        "model": "3",
+        "spoiler_type": "CarbonFiber",
+        "sun_roof_installed": "true",
+        "trim_badging": "Performance",
+        "update_available": "true",
+        "update_version": "2026.20.1",
+        "version": "2026.14.1",
+        "wheel_type": "SonicCarbonTwinTurbine19",
+    }
+    for topic, value in topic_values.items():
+        async_fire_teslamate_mqtt_message(hass, topic, value)
+    await hass.async_block_till_done()
+
+    expected_states = {
+        "sensor.roadrunner_display_name": "Roadrunner",
+        **{
+            entity_id: topic_values[topic]
+            for entity_id, (topic, _) in DISABLED_SENSOR_ENTITIES.items()
+            if topic != "display_name"
+        },
+    }
+    for entity_id, state in expected_states.items():
+        assert hass.states.get(entity_id).state == state
+
+    for entity_id in ("sensor.roadrunner_latitude", "sensor.roadrunner_longitude"):
+        coordinate_state = hass.states.get(entity_id)
+        assert coordinate_state.attributes[ATTR_STATE_CLASS] == (
+            SensorStateClass.MEASUREMENT
+        )
+        assert coordinate_state.attributes[ATTR_UNIT_OF_MEASUREMENT] == DEGREE
+
+
+async def test_active_route_sensors(
+    hass: HomeAssistant,
+    mqtt_mock: MqttMockHAClient,
+    entity_registry: er.EntityRegistry,
+) -> None:
+    """Test sensors derived from the active route JSON topic."""
+    hass.config.units = US_CUSTOMARY_SYSTEM
+    await async_setup_teslamate_mqtt_entry(hass)
+
+    for entity_id in ACTIVE_ROUTE_SENSOR_ENTITIES:
+        assert hass.states.get(entity_id).state == STATE_UNAVAILABLE
+
+    async_fire_teslamate_mqtt_message(
+        hass,
+        "active_route",
+        json.dumps(
+            {
+                "destination": "Home",
+                "energy_at_arrival": 73,
+                "miles_to_arrival": 6.485299,
+                "minutes_to_arrival": 23.466667,
+                "traffic_minutes_delay": 0.0,
+                "location": {"latitude": 35.278131, "longitude": 29.744801},
+                "error": None,
+            }
+        ),
+    )
+    await hass.async_block_till_done()
+
+    destination = hass.states.get("sensor.roadrunner_active_route_destination")
+    assert destination.state == "Home"
+    assert destination.attributes[ATTR_ICON] == "mdi:map-marker"
+
+    energy = hass.states.get("sensor.roadrunner_active_route_energy_at_arrival")
+    assert energy.state == "73"
+    assert energy.attributes[ATTR_DEVICE_CLASS] == SensorDeviceClass.BATTERY
+    assert energy.attributes[ATTR_ICON] == "mdi:battery-80"
+    assert energy.attributes[ATTR_UNIT_OF_MEASUREMENT] == PERCENTAGE
+
+    distance = hass.states.get("sensor.roadrunner_active_route_distance_to_arrival")
+    assert distance.state == "6.485299"
+    assert distance.attributes[ATTR_DEVICE_CLASS] == SensorDeviceClass.DISTANCE
+    assert distance.attributes[ATTR_ICON] == "mdi:map-marker-distance"
+    assert distance.attributes[ATTR_UNIT_OF_MEASUREMENT] == UnitOfLength.MILES
+
+    minutes = hass.states.get("sensor.roadrunner_active_route_minutes_to_arrival")
+    assert minutes.state == "23.466667"
+    assert minutes.attributes[ATTR_DEVICE_CLASS] == SensorDeviceClass.DURATION
+    assert minutes.attributes[ATTR_ICON] == "mdi:clock-outline"
+    assert minutes.attributes[ATTR_UNIT_OF_MEASUREMENT] == UnitOfTime.MINUTES
+
+    traffic_delay = hass.states.get(
+        "sensor.roadrunner_active_route_traffic_minutes_delay"
+    )
+    assert traffic_delay.state == "0.0"
+    assert traffic_delay.attributes[ATTR_DEVICE_CLASS] == SensorDeviceClass.DURATION
+    assert traffic_delay.attributes[ATTR_ICON] == "mdi:clock-alert-outline"
+    assert traffic_delay.attributes[ATTR_UNIT_OF_MEASUREMENT] == UnitOfTime.MINUTES
+
+    for entity_id, topic in ACTIVE_ROUTE_SENSOR_ENTITIES.items():
+        registry_entry = entity_registry.async_get(entity_id)
+        assert registry_entry.unique_id == f"teslamate/cars/1/{topic}"
+        assert registry_entry.disabled_by is None
+
+    async_fire_teslamate_mqtt_message(
+        hass,
+        "active_route",
+        json.dumps({"error": "No active route available"}),
+    )
+    await hass.async_block_till_done()
+
+    for entity_id in ACTIVE_ROUTE_SENSOR_ENTITIES:
+        assert hass.states.get(entity_id).state == STATE_UNAVAILABLE
+
+
+async def test_active_route_sensors_unavailable_for_invalid_json(
+    hass: HomeAssistant,
+    mqtt_mock: MqttMockHAClient,
+) -> None:
+    """Test malformed active route JSON leaves derived sensors unavailable."""
+    await async_setup_teslamate_mqtt_entry(hass)
+
+    async_fire_teslamate_mqtt_message(hass, "active_route", "not json")
+    await hass.async_block_till_done()
+
+    for entity_id in ACTIVE_ROUTE_SENSOR_ENTITIES:
+        assert hass.states.get(entity_id).state == STATE_UNAVAILABLE
+
+
+async def test_active_route_distance_uses_home_assistant_unit_conversion(
+    hass: HomeAssistant,
+    mqtt_mock: MqttMockHAClient,
+) -> None:
+    """Test Home Assistant converts the native active route distance."""
+    hass.config.units = METRIC_SYSTEM
+    await async_setup_teslamate_mqtt_entry(hass)
+
+    async_fire_teslamate_mqtt_message(
+        hass,
+        "active_route",
+        json.dumps({"miles_to_arrival": 1, "error": None}),
+    )
+    await hass.async_block_till_done()
+
+    distance = hass.states.get("sensor.roadrunner_active_route_distance_to_arrival")
+    assert float(distance.state) == pytest.approx(1.609344)
+    assert distance.attributes[ATTR_UNIT_OF_MEASUREMENT] == UnitOfLength.KILOMETERS
 
 
 async def test_new_sensors(
