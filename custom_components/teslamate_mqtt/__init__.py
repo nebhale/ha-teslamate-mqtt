@@ -2,8 +2,10 @@
 
 import asyncio
 from collections.abc import Callable
+import json
 import logging
 import re
+from typing import cast
 
 from homeassistant.components import mqtt
 from homeassistant.components.mqtt import ReceiveMessage
@@ -183,6 +185,18 @@ class TeslaMateMqttData:
     def value(self, key: str) -> str | None:
         """Return the stored value for a TeslaMate topic key."""
         return self._values.get(key)
+
+    def json_value(self, key: str) -> dict[str, object] | None:
+        """Return a stored TeslaMate JSON object."""
+        if (value := self.value(key)) is None:
+            return None
+        try:
+            parsed: object = json.loads(value)
+        except json.JSONDecodeError:
+            return None
+        if not isinstance(parsed, dict):
+            return None
+        return cast(dict[str, object], parsed)
 
     @property
     def device_info(self) -> DeviceInfo:

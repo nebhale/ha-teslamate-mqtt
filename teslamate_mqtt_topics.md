@@ -1,9 +1,9 @@
 | Topic | Name | Device class | State class | Icon | Unit | Value template | Notes |
 |---|---|---|---|---|---|---|---|
-| `active_route_destination` |  |  |  |  |  |  | Not currently implemented as it does not have an obvious sensor mapping. |
-| `active_route_latitude` |  |  |  |  |  |  | Not currently implemented as it does not have an obvious sensor mapping. |
-| `active_route_longitude` |  |  |  |  |  |  | Not currently implemented as it does not have an obvious sensor mapping. |
-| `active_route` |  |  |  |  |  |  | Not currently implemented as it does not have an obvious sensor mapping. |
+| `active_route_destination` |  |  |  |  |  |  | Deprecated by TeslaMate and ignored. The Active Route Destination sensor is derived from the `destination` field in the `active_route` JSON topic instead. |
+| `active_route_latitude` |  |  |  |  |  |  | Deprecated by TeslaMate and ignored. The Active Route Location device tracker is derived from the `location.latitude` field in the `active_route` JSON topic instead. |
+| `active_route_longitude` |  |  |  |  |  |  | Deprecated by TeslaMate and ignored. The Active Route Location device tracker is derived from the `location.longitude` field in the `active_route` JSON topic instead. |
+| `active_route` | `Active Route` |  |  | `mdi:map-marker` |  | Parse the JSON payload into the active-route entities described below. Expose `miles_to_arrival` unchanged with miles as its native unit so Home Assistant can convert it to the user's preferred distance unit. | The derived entities are unavailable until valid JSON without an `error` value is received. |
 | `battery_level` | `Battery` | `battery` | `measurement` |  | `%` |  |  |
 | `center_display_state` | `Center Display` |  |  | `mdi:television` |  | For a Home Assistant Tesla `center_display_state` sensor, treat `vehicle_state.center_display_state` as an integer enum describing what the vehicle’s center display is currently showing or doing. Known values are: `0` means the center display is off. `2` means the display is on in standby, and may also represent Camp Mode. `3` means the display is on and showing the charging screen. `4` means the display is on in the general/default state. `5` means the display is on and showing the large charging screen. `6` means the display is on and ready to unlock. `7` means Sentry Mode. `8` means Dog Mode. `9` means Media. Value `1` is not documented in the sources I found, so preserve it as unknown rather than guessing. For future safety, any unrecognized integer should map to an unknown/unmapped state while retaining the raw value as an attribute. |  |
 | `charge_current_request_max` | `Charge Current Request (Max)` | `current` | `measurement` |  | `A` | Use zero digits of precision |  |
@@ -79,3 +79,18 @@
 | `version` | `Version` |  |  | `mdi:numeric` |  |  | Used as the Home Assistant device software version and the update entity's installed version. Also exposed as a diagnostic sensor that is disabled by default. |
 | `wheel_type` | `Wheel Type` |  |  | `mdi:tire` |  | Treat the TeslaMate wheel type as a compact string made from a camel-case wheel name, digits for the wheel size, and an optional alphabetic suffix. Split the camel-case name and suffix into space-separated words, place spaces around the size, and append a double quote to the size. Append the formatted value to the Home Assistant device model as a parenthetical detail suffixed with `Wheels`. For example, `SonicCarbonTwinTurbine19` should contribute `Sonic Carbon Twin Turbine 19" Wheels`, while `Slipstream19Carbon` should contribute `Slipstream 19" Carbon Wheels`. | Used as part of the Home Assistant device model. Also exposed as a diagnostic sensor that is disabled by default. |
 | `windows_open` | `Windows` | `window` |  | `mdi:car-door` |  |  |  |
+
+## Active routes
+
+The integration derives six enabled-by-default entities from the single `active_route` JSON topic:
+
+- **Active Route Destination** is a sensor containing `destination`.
+- **Active Route Energy At Arrival** is a battery sensor containing `energy_at_arrival` in percent.
+- **Active Route Distance To Arrival** is a distance sensor containing `miles_to_arrival` with a native unit of miles. Home Assistant converts it to the user's configured distance unit for display.
+- **Active Route Minutes To Arrival** is a duration sensor containing `minutes_to_arrival` in minutes.
+- **Active Route Traffic Minutes Delay** is a duration sensor containing `traffic_minutes_delay` in minutes.
+- **Active Route Location** is a GPS device tracker using `location.latitude` and `location.longitude`.
+
+A payload such as `{"error": "No active route available"}` makes all six entities unavailable. Missing or malformed JSON also leaves them unavailable. When the route itself is valid but an individual field is absent, the corresponding entity has an unknown state.
+
+The deprecated `active_route_destination`, `active_route_latitude`, and `active_route_longitude` MQTT topics are not read; all active-route state comes from the JSON topic.

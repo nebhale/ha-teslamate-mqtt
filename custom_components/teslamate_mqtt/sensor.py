@@ -30,6 +30,11 @@ from homeassistant.util import dt as dt_util
 
 from . import TeslaMateMqttConfigEntry, TeslaMateMqttData
 from .const import (
+    TOPIC_ACTIVE_ROUTE_DESTINATION,
+    TOPIC_ACTIVE_ROUTE_DISTANCE_TO_ARRIVAL,
+    TOPIC_ACTIVE_ROUTE_ENERGY_AT_ARRIVAL,
+    TOPIC_ACTIVE_ROUTE_MINUTES_TO_ARRIVAL,
+    TOPIC_ACTIVE_ROUTE_TRAFFIC_MINUTES_DELAY,
     TOPIC_BATTERY_LEVEL,
     TOPIC_CENTER_DISPLAY_STATE,
     TOPIC_CHARGE_CURRENT_REQUEST,
@@ -81,7 +86,7 @@ from .const import (
     TOPIC_VERSION,
     TOPIC_WHEEL_TYPE,
 )
-from .entity import TeslaMateMqttEntity
+from .entity import TeslaMateActiveRouteEntity, TeslaMateMqttEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -193,6 +198,11 @@ async def async_setup_entry(
                 TeslaMateDisabledSensor(entry.runtime_data, description)
                 for description in DISABLED_SENSOR_DESCRIPTIONS
             ),
+            TeslaMateActiveRouteDestinationSensor(entry.runtime_data),
+            TeslaMateActiveRouteDistanceToArrivalSensor(entry.runtime_data),
+            TeslaMateActiveRouteEnergyAtArrivalSensor(entry.runtime_data),
+            TeslaMateActiveRouteMinutesToArrivalSensor(entry.runtime_data),
+            TeslaMateActiveRouteTrafficMinutesDelaySensor(entry.runtime_data),
             TeslaMateBatteryLevelSensor(entry.runtime_data),
             TeslaMateCenterDisplayStateSensor(entry.runtime_data),
             TeslaMateChargeEnergyAddedSensor(entry.runtime_data),
@@ -233,6 +243,106 @@ async def async_setup_entry(
             TeslaMateUsableBatteryLevelSensor(entry.runtime_data),
         ]
     )
+
+
+class TeslaMateActiveRouteSensor(TeslaMateActiveRouteEntity, SensorEntity):
+    """Base class for sensors derived from the active route."""
+
+    def active_route_number(self, key: str) -> float | int | None:
+        """Return a numeric value from the active route."""
+        value = self.active_route_value(key)
+        if isinstance(value, bool) or not isinstance(value, (float, int)):
+            return None
+        return value
+
+
+class TeslaMateActiveRouteDestinationSensor(TeslaMateActiveRouteSensor):
+    """Representation of the active route destination."""
+
+    _attr_icon = "mdi:map-marker"
+    _attr_name = "Active Route Destination"
+
+    def __init__(self, data: TeslaMateMqttData) -> None:
+        """Initialize the sensor."""
+        super().__init__(data, TOPIC_ACTIVE_ROUTE_DESTINATION)
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the active route destination."""
+        value = self.active_route_value("destination")
+        return value if isinstance(value, str) and value else None
+
+
+class TeslaMateActiveRouteEnergyAtArrivalSensor(TeslaMateActiveRouteSensor):
+    """Representation of the battery energy expected at arrival."""
+
+    _attr_device_class = SensorDeviceClass.BATTERY
+    _attr_icon = "mdi:battery-80"
+    _attr_name = "Active Route Energy At Arrival"
+    _attr_native_unit_of_measurement = PERCENTAGE
+
+    def __init__(self, data: TeslaMateMqttData) -> None:
+        """Initialize the sensor."""
+        super().__init__(data, TOPIC_ACTIVE_ROUTE_ENERGY_AT_ARRIVAL)
+
+    @property
+    def native_value(self) -> float | int | None:
+        """Return the battery energy expected at arrival."""
+        return self.active_route_number("energy_at_arrival")
+
+
+class TeslaMateActiveRouteDistanceToArrivalSensor(TeslaMateActiveRouteSensor):
+    """Representation of the active route distance to arrival."""
+
+    _attr_device_class = SensorDeviceClass.DISTANCE
+    _attr_icon = "mdi:map-marker-distance"
+    _attr_name = "Active Route Distance To Arrival"
+    _attr_native_unit_of_measurement = UnitOfLength.MILES
+
+    def __init__(self, data: TeslaMateMqttData) -> None:
+        """Initialize the sensor."""
+        super().__init__(data, TOPIC_ACTIVE_ROUTE_DISTANCE_TO_ARRIVAL)
+
+    @property
+    def native_value(self) -> float | int | None:
+        """Return the active route distance to arrival."""
+        return self.active_route_number("miles_to_arrival")
+
+
+class TeslaMateActiveRouteMinutesToArrivalSensor(TeslaMateActiveRouteSensor):
+    """Representation of the active route minutes to arrival."""
+
+    _attr_device_class = SensorDeviceClass.DURATION
+    _attr_icon = "mdi:clock-outline"
+    _attr_name = "Active Route Minutes To Arrival"
+    _attr_native_unit_of_measurement = UnitOfTime.MINUTES
+
+    def __init__(self, data: TeslaMateMqttData) -> None:
+        """Initialize the sensor."""
+        super().__init__(data, TOPIC_ACTIVE_ROUTE_MINUTES_TO_ARRIVAL)
+
+    @property
+    def native_value(self) -> float | int | None:
+        """Return the active route minutes to arrival."""
+        return self.active_route_number("minutes_to_arrival")
+
+
+class TeslaMateActiveRouteTrafficMinutesDelaySensor(TeslaMateActiveRouteSensor):
+    """Representation of the active route traffic delay."""
+
+    _attr_device_class = SensorDeviceClass.DURATION
+    _attr_icon = "mdi:clock-alert-outline"
+    _attr_name = "Active Route Traffic Minutes Delay"
+    _attr_native_unit_of_measurement = UnitOfTime.MINUTES
+
+    def __init__(self, data: TeslaMateMqttData) -> None:
+        """Initialize the sensor."""
+        super().__init__(data, TOPIC_ACTIVE_ROUTE_TRAFFIC_MINUTES_DELAY)
+
+    @property
+    def native_value(self) -> float | int | None:
+        """Return the active route traffic delay."""
+        return self.active_route_number("traffic_minutes_delay")
 
 
 class TeslaMateDisabledSensor(TeslaMateMqttEntity, SensorEntity):
