@@ -60,7 +60,7 @@
 | `speed` | `Speed` | `speed` | `measurement` | `mdi:speedometer` | `km/h` | Use zero digits of precision |  |
 | `spoiler_type` | `Spoiler Type` |  |  | `mdi:weather-windy` |  | Split camel-case words into space-separated words. Append the formatted value to the Home Assistant device model as a parenthetical detail suffixed with `Spoiler`, unless the value is `none`. | Used as part of the Home Assistant device model. Also exposed as a diagnostic sensor that is disabled by default. |
 | `state` | `State` |  |  | `mdi:car-connected` |  | Preserve the TeslaMate vehicle state as a human-readable string, but title case the value. |  |
-| `sun_roof_installed` | `Sunroof Installed` |  |  | `mdi:car-convertible` |  | When the value is `true`, append `Sunroof` to the Home Assistant device model details. | Also exposed as a diagnostic binary sensor and as a diagnostic sensor that is disabled by default. |
+| `sun_roof_installed` | `Sunroof Installed` |  |  | `mdi:car-convertible` |  | When the value is `true`, append `Sunroof` to the Home Assistant device model details. | Also exposed as a diagnostic binary sensor. |
 | `sun_roof_percent_open` | `Sunroof Open` |  | `measurement` | `mdi:car-convertible` | `%` | Use zero digits of precision |  |
 | `sun_roof_state` | `Sunroof State` |  |  | `mdi:car-convertible` |  | Preserve the TeslaMate sunroof state as a human-readable string by replacing underscores with spaces and title casing the value. |  |
 | `time_to_full_charge` | `Charging Time Remaining` | `duration` | `measurement` | `mdi:timer` | `h` |  |  |
