@@ -1,0 +1,44 @@
+tests/test_device_tracker.py
+  s_83ef1df0c934e6::t_1fdd9e9ebdd4fd 3-4,10,47-91
+tests/test_sensor.py
+  s_83ef1df0c934e6::t_1fdd9e9ebdd4fd 3,17,71-86,868-873,875-907,909-910,912-954
+  s_83ef1df0c934e6::t_b72974bf985747 874,908,911
+  s_83ef1df0c934e6::t_ffc0b69081b7fe 32,955-974
+  s_83ef1df0c934e6::t_04d4b2ba05820c 975-976
+custom_components/teslamate_mqtt/const.py
+  s_83ef1df0c934e6::t_3d3c4ed4fd8699 6-12
+custom_components/teslamate_mqtt/__init__.py
+  s_83ef1df0c934e6::t_3d3c4ed4fd8699 5,8,189-199
+  s_83ef1df0c934e6::t_dd5a0052c68d05 200
+custom_components/teslamate_mqtt/device_tracker.py
+  s_83ef1df0c934e6::t_e5a60f99549e55 12,64-65,67-95,97
+  s_83ef1df0c934e6::t_e62673e37fca5b 11,66
+  s_83ef1df0c934e6::t_7c95c07d9eab32 21-26
+  s_83ef1df0c934e6::t_5d5e90fc03fc09 96
+  s_83ef1df0c934e6::t_61cebb98f9df1b 98-100
+teslamate_mqtt_topics.md
+  s_83ef1df0c934e6::t_b72974bf985747 6,89
+  s_83ef1df0c934e6::t_6f339acf499408 3-5,82-88,90-96
+custom_components/teslamate_mqtt/entity.py
+  s_83ef1df0c934e6::t_3d3c4ed4fd8699 7,31-54
+custom_components/teslamate_mqtt/sensor.py
+  s_83ef1df0c934e6::t_b72974bf985747 300,307-309
+  s_83ef1df0c934e6::t_143bc0c126994d 33-37,89,201-205,248-299,301-306,310-345
+  s_83ef1df0c934e6::t_94e4d60817c80e 346-347
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "f0e32f45101a4290a952c142662f0121501d8c78",
+  "prompts": {},
+  "sessions": {
+    "s_83ef1df0c934e6": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00ad8-1a3a-7ec3-bd59-92c743c188c5",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ben Hale <nebhale@nebhale.com>"
+    }
+  }
+}
