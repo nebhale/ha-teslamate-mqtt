@@ -1,0 +1,25 @@
+custom_components/teslamate_mqtt/sensor.py
+  s_218bdcfd53499b::t_e7ffd6ca38d998 462-469,480
+tests/test_sensor.py
+  s_218bdcfd53499b::t_f7f374d52cea62 993-996,1001
+  s_218bdcfd53499b::t_e7ffd6ca38d998 43-50,808,813,824,829,841-842,997-1000,1002-1003
+teslamate_mqtt_topics.md
+  s_218bdcfd53499b::t_fab9061e457f27 59,77-78,80
+  s_218bdcfd53499b::t_e7ffd6ca38d998 22,36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "59a1c6bb62160ab6f707e475d6ea41f1b1acf694",
+  "prompts": {},
+  "sessions": {
+    "s_218bdcfd53499b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00af9-ae4d-76c0-83d5-9407ce400baa",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Ben Hale <nebhale@nebhale.com>"
+    }
+  }
+}
