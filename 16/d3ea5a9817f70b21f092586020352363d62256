@@ -1,0 +1,19 @@
+teslamate_mqtt_topics.md
+  s_4c36426920f462::t_1f2195b593e4f6 63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "16d3ea5a9817f70b21f092586020352363d62256",
+  "prompts": {},
+  "sessions": {
+    "s_4c36426920f462": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00b08-1d32-7e61-bbae-57d26cfec685",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": null
+    }
+  }
+}
