@@ -71,7 +71,6 @@ from .const import (
     TOPIC_SPEED,
     TOPIC_SPOILER_TYPE,
     TOPIC_STATE,
-    TOPIC_SUN_ROOF_INSTALLED,
     TOPIC_SUN_ROOF_PERCENT_OPEN,
     TOPIC_SUN_ROOF_STATE,
     TOPIC_TIME_TO_FULL_CHARGE,
@@ -141,12 +140,6 @@ DISABLED_SENSOR_DESCRIPTIONS: tuple[SensorEntityDescription, ...] = (
         name="Spoiler Type",
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:weather-windy",
-    ),
-    SensorEntityDescription(
-        key=TOPIC_SUN_ROOF_INSTALLED,
-        name="Sunroof Installed",
-        entity_category=EntityCategory.DIAGNOSTIC,
-        icon="mdi:car-convertible",
     ),
     SensorEntityDescription(
         key=TOPIC_TRIM_BADGING,

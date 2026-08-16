@@ -56,10 +56,6 @@ DISABLED_SENSOR_ENTITIES = {
         "spoiler_type",
         EntityCategory.DIAGNOSTIC,
     ),
-    "sensor.roadrunner_sunroof_installed": (
-        "sun_roof_installed",
-        EntityCategory.DIAGNOSTIC,
-    ),
     "sensor.roadrunner_trim_badging": (
         "trim_badging",
         EntityCategory.DIAGNOSTIC,
@@ -845,7 +841,6 @@ async def test_disabled_sensors_when_enabled(
         "longitude": "-122.25",
         "model": "3",
         "spoiler_type": "CarbonFiber",
-        "sun_roof_installed": "true",
         "trim_badging": "Performance",
         "update_available": "true",
         "update_version": "2026.20.1",
