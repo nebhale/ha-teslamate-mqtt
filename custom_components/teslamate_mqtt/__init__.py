@@ -51,10 +51,19 @@ def _split_camel_case(value: str) -> str:
 
 def _format_wheel_type(value: str) -> str:
     """Format a compact TeslaMate wheel type."""
-    if (match := re.fullmatch(r"(?P<name>[A-Za-z]+)(?P<size>\d+)", value)) is None:
+    if (
+        match := re.fullmatch(
+            r"(?P<name>[A-Za-z]+)(?P<size>\d+)(?P<suffix>[A-Za-z]*)", value
+        )
+    ) is None:
         return _split_camel_case(value)
 
-    return f'{_split_camel_case(match["name"])} {match["size"]}"'
+    parts = [
+        _split_camel_case(match["name"]),
+        f'{match["size"]}"',
+        _split_camel_case(match["suffix"]),
+    ]
+    return " ".join(part for part in parts if part)
 
 
 def _format_spoiler_type(value: str) -> str | None:
