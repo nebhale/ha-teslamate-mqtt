@@ -7,11 +7,13 @@ import re
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
+    SensorEntityDescription,
     SensorStateClass,
 )
 from homeassistant.const import (
     DEGREE,
     PERCENTAGE,
+    EntityCategory,
     UnitOfElectricCurrent,
     UnitOfElectricPotential,
     UnitOfEnergy,
@@ -40,6 +42,7 @@ from .const import (
     TOPIC_CHARGER_VOLTAGE,
     TOPIC_CHARGING_STATE,
     TOPIC_CLIMATE_KEEPER_MODE,
+    TOPIC_DISPLAY_NAME,
     TOPIC_DOWNLOAD_PERC,
     TOPIC_ELEVATION,
     TOPIC_EST_BATTERY_RANGE_KM,
@@ -49,6 +52,10 @@ from .const import (
     TOPIC_IDEAL_BATTERY_RANGE_KM,
     TOPIC_INSIDE_TEMP,
     TOPIC_INSTALL_PERC,
+    TOPIC_LATITUDE,
+    TOPIC_LOCATION,
+    TOPIC_LONGITUDE,
+    TOPIC_MODEL,
     TOPIC_ODOMETER,
     TOPIC_OUTSIDE_TEMP,
     TOPIC_POWER,
@@ -57,7 +64,9 @@ from .const import (
     TOPIC_SHIFT_STATE,
     TOPIC_SINCE,
     TOPIC_SPEED,
+    TOPIC_SPOILER_TYPE,
     TOPIC_STATE,
+    TOPIC_SUN_ROOF_INSTALLED,
     TOPIC_SUN_ROOF_PERCENT_OPEN,
     TOPIC_SUN_ROOF_STATE,
     TOPIC_TIME_TO_FULL_CHARGE,
@@ -65,7 +74,12 @@ from .const import (
     TOPIC_TPMS_PRESSURE_FR,
     TOPIC_TPMS_PRESSURE_RL,
     TOPIC_TPMS_PRESSURE_RR,
+    TOPIC_TRIM_BADGING,
+    TOPIC_UPDATE_AVAILABLE,
+    TOPIC_UPDATE_VERSION,
     TOPIC_USABLE_BATTERY_LEVEL,
+    TOPIC_VERSION,
+    TOPIC_WHEEL_TYPE,
 )
 from .entity import TeslaMateMqttEntity
 
@@ -85,6 +99,82 @@ CENTER_DISPLAY_STATES = {
 
 ATTR_RAW_VALUE = "raw_value"
 
+DISABLED_SENSOR_DESCRIPTIONS: tuple[SensorEntityDescription, ...] = (
+    SensorEntityDescription(
+        key=TOPIC_DISPLAY_NAME,
+        name="Display Name",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:form-textbox",
+    ),
+    SensorEntityDescription(
+        key=TOPIC_LATITUDE,
+        name="Latitude",
+        icon="mdi:latitude",
+        native_unit_of_measurement=DEGREE,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    SensorEntityDescription(
+        key=TOPIC_LOCATION,
+        name="Location",
+        icon="mdi:car",
+    ),
+    SensorEntityDescription(
+        key=TOPIC_LONGITUDE,
+        name="Longitude",
+        icon="mdi:longitude",
+        native_unit_of_measurement=DEGREE,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    SensorEntityDescription(
+        key=TOPIC_MODEL,
+        name="Model",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:form-textbox",
+    ),
+    SensorEntityDescription(
+        key=TOPIC_SPOILER_TYPE,
+        name="Spoiler Type",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:weather-windy",
+    ),
+    SensorEntityDescription(
+        key=TOPIC_SUN_ROOF_INSTALLED,
+        name="Sunroof Installed",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:car-convertible",
+    ),
+    SensorEntityDescription(
+        key=TOPIC_TRIM_BADGING,
+        name="Trim Badging",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:form-textbox",
+    ),
+    SensorEntityDescription(
+        key=TOPIC_UPDATE_AVAILABLE,
+        name="Update Available",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key=TOPIC_UPDATE_VERSION,
+        name="Update Version",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        key=TOPIC_VERSION,
+        name="Version",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:numeric",
+    ),
+    SensorEntityDescription(
+        key=TOPIC_WHEEL_TYPE,
+        name="Wheel Type",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:tire",
+    ),
+)
+
+COORDINATE_TOPICS = {TOPIC_LATITUDE, TOPIC_LONGITUDE}
+
 
 def _split_camel_case(value: str) -> str:
     """Split camel-case words into space-separated words."""
@@ -99,6 +189,10 @@ async def async_setup_entry(
     """Set up TeslaMate MQTT sensors."""
     async_add_entities(
         [
+            *(
+                TeslaMateDisabledSensor(entry.runtime_data, description)
+                for description in DISABLED_SENSOR_DESCRIPTIONS
+            ),
             TeslaMateBatteryLevelSensor(entry.runtime_data),
             TeslaMateCenterDisplayStateSensor(entry.runtime_data),
             TeslaMateChargeEnergyAddedSensor(entry.runtime_data),
@@ -139,6 +233,32 @@ async def async_setup_entry(
             TeslaMateUsableBatteryLevelSensor(entry.runtime_data),
         ]
     )
+
+
+class TeslaMateDisabledSensor(TeslaMateMqttEntity, SensorEntity):
+    """Representation of MQTT data already used elsewhere in the integration."""
+
+    _attr_entity_registry_enabled_default = False
+    entity_description: SensorEntityDescription
+
+    def __init__(
+        self, data: TeslaMateMqttData, description: SensorEntityDescription
+    ) -> None:
+        """Initialize the sensor."""
+        super().__init__(data, description.key)
+        self.entity_description = description
+
+    @property
+    def native_value(self) -> float | str | None:
+        """Return the MQTT value."""
+        if (value := self.data.value(self.key)) is None:
+            return None
+        if self.key not in COORDINATE_TOPICS:
+            return value
+        try:
+            return float(value)
+        except ValueError:
+            return None
 
 
 class TeslaMateBatteryLevelSensor(TeslaMateMqttEntity, SensorEntity):

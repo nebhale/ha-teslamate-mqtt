@@ -17,7 +17,7 @@
 | `charger_voltage` | `Charger Voltage` | `voltage` | `measurement` |  | `V` | Use zero digits of precision |  |
 | `charging_state` | `Charging State` |  |  | `mdi:ev-station` |  | Preserve the TeslaMate charging state as a human-readable string, but split camel-case words into space-separated words. For example, `NoPower` should display as `No Power`. | |
 | `climate_keeper_mode` | `Climate Keeper` |  |  | `mdi:air-conditioner` |  | Preserve the TeslaMate climate keeper mode as a human-readable string, but title case the value. | |
-| `display_name` | `Display Name` |  |  | `mdi:form-textbox` |  |  | Used as the Home Assistant config entry title and device name, so it is not exposed as a standalone sensor. |
+| `display_name` | `Display Name` |  |  | `mdi:form-textbox` |  |  | Used as the Home Assistant config entry title and device name. Also exposed as a diagnostic sensor that is disabled by default. |
 | `doors_open` | `Doors` | `door` |  | `mdi:car-door` |  |  |  |
 | `download_perc` | `Software Update Download` |  | `measurement` | `mdi:download` | `%` | Use zero digits of precision |  |
 | `driver_front_door_open` | `Door (Driver Front)` | `door` |  | `mdi:car-door` |  |  |  |
@@ -37,11 +37,11 @@
 | `is_climate_on` | `Climate` | `running` |  | `mdi:air-conditioner` |  |  |  |
 | `is_preconditioning` | `Preconditioning` | `running` |  | `mdi:air-conditioner` |  |  |  |
 | `is_user_present` | `Occupancy` | `occupancy` |  | `mdi:account` |  |  |  |
-| `latitude` | `Latitude` |  | `measurement` | `mdi:latitude` | `°` |  | Used by the device tracker rather than exposed as a standalone sensor. |
-| `location` |  |  |  | `mdi:car` |  |  | Ignored as the device tracker builds this from the latitude and longitude directly. |
+| `latitude` | `Latitude` |  | `measurement` | `mdi:latitude` | `°` |  | Used by the device tracker. Also exposed as a sensor that is disabled by default. |
+| `location` | `Location` |  |  | `mdi:car` |  |  | The device tracker builds its location from latitude and longitude instead of this topic. Also exposed as a sensor that is disabled by default. |
 | `locked` | `Lock` | `lock` |  |  |  | Treat the TeslaMate locked value as a Home Assistant lock binary sensor. Because TeslaMate publishes `true` when the car is locked and `false` when the car is unlocked, invert the value so `true` reports off/locked and `false` reports on/unlocked. |  |
-| `longitude` | `Longitude` |  | `measurement` | `mdi:longitude` | `°` |  | Used by the device tracker rather than exposed as a standalone sensor. |
-| `model` | `Model` |  |  | `mdi:form-textbox` |  |  | Used as the Home Assistant device name, so it is not exposed as a standalone sensor. |
+| `longitude` | `Longitude` |  | `measurement` | `mdi:longitude` | `°` |  | Used by the device tracker. Also exposed as a sensor that is disabled by default. |
+| `model` | `Model` |  |  | `mdi:form-textbox` |  |  | Used as part of the Home Assistant device model. Also exposed as a diagnostic sensor that is disabled by default. |
 | `odometer` | `Odometer` | `distance` | `total_increasing` | `mdi:counter` | `km` | Use zero digits of precision |  |
 | `outside_temp` | `Temperature (Outside)` | `temperature` | `measurement` |  | `°C` | Use one digit of precision |  |
 | `passenger_front_door_open` | `Door (Passenger Front)` | `door` |  | `mdi:car-door` |  |  |  |
@@ -57,9 +57,9 @@
 | `shift_state` | `Shift State` |  |  | `mdi:car-shift-pattern` |  |  |  |
 | `since` | `Last Seen` | `timestamp` |  | `mdi:timer-sand` |  | Parse the value as a timestamp and use it as-is. |  |
 | `speed` | `Speed` | `speed` | `measurement` | `mdi:speedometer` | `km/h` | Use zero digits of precision |  |
-| `spoiler_type` | `Spoiler Type` |  |  | `mdi:weather-windy` |  | Split camel-case words into space-separated words. Append the formatted value to the Home Assistant device model as a parenthetical detail suffixed with `Spoiler`, unless the value is `none`. | Used as part of the Home Assistant device model, so it is not exposed as a standalone sensor. |
+| `spoiler_type` | `Spoiler Type` |  |  | `mdi:weather-windy` |  | Split camel-case words into space-separated words. Append the formatted value to the Home Assistant device model as a parenthetical detail suffixed with `Spoiler`, unless the value is `none`. | Used as part of the Home Assistant device model. Also exposed as a diagnostic sensor that is disabled by default. |
 | `state` | `State` |  |  | `mdi:car-connected` |  | Preserve the TeslaMate vehicle state as a human-readable string, but title case the value. |  |
-| `sun_roof_installed` | `Sunroof Installed` |  |  | `mdi:car-convertible` |  | When the value is `true`, append `Sunroof` to the Home Assistant device model details. | Also exposed as a diagnostic binary sensor. |
+| `sun_roof_installed` | `Sunroof Installed` |  |  | `mdi:car-convertible` |  | When the value is `true`, append `Sunroof` to the Home Assistant device model details. | Also exposed as a diagnostic binary sensor and as a diagnostic sensor that is disabled by default. |
 | `sun_roof_percent_open` | `Sunroof Open` |  | `measurement` | `mdi:car-convertible` | `%` | Use zero digits of precision |  |
 | `sun_roof_state` | `Sunroof State` |  |  | `mdi:car-convertible` |  | Preserve the TeslaMate sunroof state as a human-readable string by replacing underscores with spaces and title casing the value. |  |
 | `time_to_full_charge` | `Charging Time Remaining` | `duration` | `measurement` | `mdi:timer` | `h` |  |  |
@@ -71,11 +71,11 @@
 | `tpms_soft_warning_fr` | `Tire Soft (Front Right)` | `problem` |  | `mdi:car-tire-alert` |  |  |  |
 | `tpms_soft_warning_rl` | `Tire Soft (Rear Left)` | `problem` |  | `mdi:car-tire-alert` |  |  |  |
 | `tpms_soft_warning_rr` | `Tire Soft (Rear Right)` | `problem` |  | `mdi:car-tire-alert` |  |  |  |
-| `trim_badging` | `Trim Badging` |  |  | `mdi:form-textbox` |  |  | Used as the Home Assistant device name, so it is not exposed as a standalone sensor. |
+| `trim_badging` | `Trim Badging` |  |  | `mdi:form-textbox` |  |  | Used as part of the Home Assistant device model. Also exposed as a diagnostic sensor that is disabled by default. |
 | `trunk_open` | `Trunk` | `door` |  | `mdi:car` |  |  |  |
-| `update_available` | `Update` | `firmware` |  |  |  |  | Exposed as an update entity. |
-| `update_version` | `Update` | `firmware` |  |  |  |  | Used as the latest version on the update entity. |
+| `update_available` | `Update Available` | `firmware` |  |  |  |  | Exposed as an update entity and as a diagnostic sensor that is disabled by default. |
+| `update_version` | `Update Version` | `firmware` |  |  |  |  | Used as the latest version on the update entity. Also exposed as a diagnostic sensor that is disabled by default. |
 | `usable_battery_level` | `Usable Battery` | `battery` | `measurement` |  | `%` |  |  |
-| `version` | `Version` |  |  | `mdi:numeric` |  |  | Used as the Home Assistant device software version, so it is not exposed as a standalone sensor. |
-| `wheel_type` | `Wheel Type` |  |  | `mdi:tire` |  | Treat the TeslaMate wheel type as a compact string made from a camel-case wheel name followed by trailing digits for the wheel size. Split the camel-case name into space-separated words, insert a space before the size, append a double quote to the size, and append the formatted value to the Home Assistant device model as a parenthetical detail suffixed with `Wheels`. For example, `SonicCarbonTwinTurbine19` should contribute `Sonic Carbon Twin Turbine 19" Wheels`. | Used as part of the Home Assistant device model, so it is not exposed as a standalone sensor. |
+| `version` | `Version` |  |  | `mdi:numeric` |  |  | Used as the Home Assistant device software version and the update entity's installed version. Also exposed as a diagnostic sensor that is disabled by default. |
+| `wheel_type` | `Wheel Type` |  |  | `mdi:tire` |  | Treat the TeslaMate wheel type as a compact string made from a camel-case wheel name followed by trailing digits for the wheel size. Split the camel-case name into space-separated words, insert a space before the size, append a double quote to the size, and append the formatted value to the Home Assistant device model as a parenthetical detail suffixed with `Wheels`. For example, `SonicCarbonTwinTurbine19` should contribute `Sonic Carbon Twin Turbine 19" Wheels`. | Used as part of the Home Assistant device model. Also exposed as a diagnostic sensor that is disabled by default. |
 | `windows_open` | `Windows` | `window` |  | `mdi:car-door` |  |  |  |
