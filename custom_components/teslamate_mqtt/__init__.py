@@ -29,6 +29,7 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 DISPLAY_NAME_TIMEOUT = 2
+MODELS_WITH_PREFIX = {"3", "S", "X", "Y"}
 SUBSCRIBE_DONE_TIMEOUT = 10
 
 _PLATFORMS: list[Platform] = [
@@ -71,6 +72,13 @@ def _format_spoiler_type(value: str) -> str | None:
     if value.lower() == "none":
         return None
     return _split_camel_case(value)
+
+
+def _format_model(value: str) -> str:
+    """Prefix legacy Tesla model codes."""
+    if value in MODELS_WITH_PREFIX:
+        return f"Model {value}"
+    return value
 
 
 class TeslaMateMqttData:
@@ -202,7 +210,7 @@ class TeslaMateMqttData:
         if not parts:
             return None
 
-        model = f"Model {' '.join(parts)}"
+        model = " ".join([_format_model(parts[0]), *parts[1:]])
         details = []
         if wheel_type := self.value(TOPIC_WHEEL_TYPE):
             details.append(f"{_format_wheel_type(wheel_type)} Wheels")

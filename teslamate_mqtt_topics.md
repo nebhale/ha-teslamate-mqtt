@@ -41,7 +41,7 @@
 | `location` | `Location` |  |  | `mdi:car` |  |  | The device tracker builds its location from latitude and longitude instead of this topic. Also exposed as a sensor that is disabled by default. |
 | `locked` | `Lock` | `lock` |  |  |  | Treat the TeslaMate locked value as a Home Assistant lock binary sensor. Because TeslaMate publishes `true` when the car is locked and `false` when the car is unlocked, invert the value so `true` reports off/locked and `false` reports on/unlocked. |  |
 | `longitude` | `Longitude` |  | `measurement` | `mdi:longitude` | `°` |  | Used by the device tracker. Also exposed as a sensor that is disabled by default. |
-| `model` | `Model` |  |  | `mdi:form-textbox` |  |  | Used as part of the Home Assistant device model. Also exposed as a diagnostic sensor that is disabled by default. |
+| `model` | `Model` |  |  | `mdi:form-textbox` |  | Prefix the legacy model codes `S`, `X`, `3`, and `Y` with `Model`. Preserve other names, such as `Cybertruck`, without a prefix. | Used as part of the Home Assistant device model. Also exposed as a diagnostic sensor that is disabled by default. |
 | `odometer` | `Odometer` | `distance` | `total_increasing` | `mdi:counter` | `km` | Use zero digits of precision |  |
 | `outside_temp` | `Temperature (Outside)` | `temperature` | `measurement` |  | `°C` | Use one digit of precision |  |
 | `passenger_front_door_open` | `Door (Passenger Front)` | `door` |  | `mdi:car-door` |  |  |  |
