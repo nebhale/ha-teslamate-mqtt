@@ -40,6 +40,14 @@ from tests.typing import MqttMockHAClient
 
 DISABLED_SENSOR_ENTITIES = {
     "sensor.roadrunner_display_name": ("display_name", EntityCategory.DIAGNOSTIC),
+    "sensor.roadrunner_software_update_download": (
+        "download_perc",
+        EntityCategory.DIAGNOSTIC,
+    ),
+    "sensor.roadrunner_software_update_installation": (
+        "install_perc",
+        EntityCategory.DIAGNOSTIC,
+    ),
     "sensor.roadrunner_latitude": ("latitude", None),
     "sensor.roadrunner_location": ("location", None),
     "sensor.roadrunner_longitude": ("longitude", None),
@@ -797,12 +805,12 @@ async def test_sensors(
     assert hass.states.get("sensor.roadrunner_energy_added").state == "1.1"
 
 
-async def test_reused_topic_sensors_disabled_by_default(
+async def test_sensors_disabled_by_default(
     hass: HomeAssistant,
     mqtt_mock: MqttMockHAClient,
     entity_registry: er.EntityRegistry,
 ) -> None:
-    """Test sensors for reused MQTT topics are disabled by default."""
+    """Test sensors configured as disabled by default."""
     await async_setup_teslamate_mqtt_entry(hass)
 
     for entity_id, (topic, entity_category) in DISABLED_SENSOR_ENTITIES.items():
@@ -813,12 +821,12 @@ async def test_reused_topic_sensors_disabled_by_default(
         assert registry_entry.entity_category == entity_category
 
 
-async def test_reused_topic_sensors_when_enabled(
+async def test_disabled_sensors_when_enabled(
     hass: HomeAssistant,
     mqtt_mock: MqttMockHAClient,
     entity_registry: er.EntityRegistry,
 ) -> None:
-    """Test values exposed by enabled sensors for reused MQTT topics."""
+    """Test values exposed by sensors after they are enabled."""
     for entity_id, (topic, _) in DISABLED_SENSOR_ENTITIES.items():
         entity_registry.async_get_or_create(
             "sensor",
@@ -830,6 +838,8 @@ async def test_reused_topic_sensors_when_enabled(
     await async_setup_teslamate_mqtt_entry(hass)
 
     topic_values = {
+        "download_perc": "100",
+        "install_perc": "42",
         "latitude": "37.5",
         "location": "Home",
         "longitude": "-122.25",
@@ -980,6 +990,17 @@ async def test_new_sensors(
     entity_registry: er.EntityRegistry,
 ) -> None:
     """Test sensors added for new TeslaMate MQTT topics."""
+    for topic, object_id in (
+        ("download_perc", "roadrunner_software_update_download"),
+        ("install_perc", "roadrunner_software_update_installation"),
+    ):
+        entity_registry.async_get_or_create(
+            "sensor",
+            "teslamate_mqtt",
+            f"teslamate/cars/1/{topic}",
+            suggested_object_id=object_id,
+        )
+
     await async_setup_teslamate_mqtt_entry(hass)
 
     percentage_entities = {

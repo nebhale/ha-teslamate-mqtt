@@ -459,7 +459,14 @@ class TeslaMatePercentageSensor(TeslaMateIntegerMeasurementSensor):
     _attr_native_unit_of_measurement = PERCENTAGE
 
 
-class TeslaMateDownloadPercentageSensor(TeslaMatePercentageSensor):
+class TeslaMateSoftwareUpdateProgressSensor(TeslaMatePercentageSensor):
+    """Base class for diagnostic software update progress sensors."""
+
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_entity_registry_enabled_default = False
+
+
+class TeslaMateDownloadPercentageSensor(TeslaMateSoftwareUpdateProgressSensor):
     """Representation of Tesla software update download progress."""
 
     _attr_icon = "mdi:download"
@@ -470,7 +477,7 @@ class TeslaMateDownloadPercentageSensor(TeslaMatePercentageSensor):
         super().__init__(data, TOPIC_DOWNLOAD_PERC)
 
 
-class TeslaMateInstallPercentageSensor(TeslaMatePercentageSensor):
+class TeslaMateInstallPercentageSensor(TeslaMateSoftwareUpdateProgressSensor):
     """Representation of Tesla software update installation progress."""
 
     _attr_icon = "mdi:update"
