@@ -1,3 +1,8 @@
+> [!WARNING]
+> This project is archived as of August, 2026.  The functionality provided by it is now [included in TeslaMate natively][tm-discovery] starting in 4.1.0.
+
+[tm-discovery]: https://docs.teslamate.org/docs/integrations/home_assistant#mqtt-discovery-automatic-configuration
+
 # TeslaMate MQTT for Home Assistant
 
 TeslaMate MQTT is a custom Home Assistant integration for exposing TeslaMate MQTT data as Home Assistant entities.
